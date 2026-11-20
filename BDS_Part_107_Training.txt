@@ -1,0 +1,1218 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BDS Part 107 Training</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: BDS letterhead band (black, logo) over a single working column; orange #D9581F carries headings and actions, dark brown #2B2118 carries text. */
+:root{
+  --band:#010506; --paper:#f7f6f5; --surface:#ffffff; --ink:#2b2118; --muted:#6c5f55; --line:#e3dcd6; --soft:#f6ece6;
+  --accent:#d9581f; --accent-strong:#b5471a; --on-accent:#ffffff; --head:#c24e1b;
+  --good:#2f7a4c; --good-soft:#e4f1e8; --bad:#b3362e; --bad-soft:#f8e4e2;
+  --b-blue:#2a63a8; --c-mag:#a3307a;
+  --f-text:Aptos,"Segoe UI Variable","Segoe UI",Inter,system-ui,-apple-system,sans-serif;
+  --f-display:"Aptos Display",Aptos,"Segoe UI Variable Display","Segoe UI",Inter,system-ui,sans-serif;
+  --f-mono:"Aptos Mono",Consolas,ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#15110e; --surface:#1f1915; --ink:#f2ebe5; --muted:#b5a79b; --line:#3a2f28; --soft:#33241b;
+  --accent:#ee7a44; --accent-strong:#ee7a44; --on-accent:#1a120d; --head:#f08a58;
+  --good:#63c08a; --good-soft:#163426; --bad:#ef7f76; --bad-soft:#3d1f1c; --b-blue:#7aaee8; --c-mag:#e07ab9; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#15110e; --surface:#1f1915; --ink:#f2ebe5; --muted:#b5a79b; --line:#3a2f28; --soft:#33241b;
+  --accent:#ee7a44; --accent-strong:#ee7a44; --on-accent:#1a120d; --head:#f08a58;
+  --good:#63c08a; --good-soft:#163426; --bad:#ef7f76; --bad-soft:#3d1f1c; --b-blue:#7aaee8; --c-mag:#e07ab9; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-text);font-size:15.5px;line-height:1.55}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--band)}
+.band{background:var(--band);border-bottom:4px solid #d9581f}
+.inner{max-width:980px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.band .inner{display:flex;align-items:center;gap:16px;padding-block:12px}
+.band img{width:68px;height:68px;flex:none;border-radius:4px}
+.band h1{margin:0;font-family:var(--f-display);font-weight:700;font-size:26px;color:#ffffff;letter-spacing:.01em;line-height:1.1}
+.band h1 span{color:#ee7a44}
+.band p{margin:4px 0 0;color:#c9bcb1;font-size:13px}
+nav.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);overflow-x:auto;margin:14px 0 22px}
+nav.tabs button{font:600 15px var(--f-text);background:none;border:0;color:var(--muted);padding:10px 14px;border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap}
+nav.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+nav.tabs button:hover{color:var(--ink)}
+.badge{display:inline-block;min-width:20px;padding:0 6px;border-radius:10px;background:var(--bad-soft);color:var(--bad);font-size:12px;margin-left:4px}
+main{padding-bottom:40px}
+h2{font-family:var(--f-display);font-weight:700;font-size:22px;color:var(--head);margin:0 0 10px;text-wrap:balance}
+h3{font-size:16px;margin:0 0 6px}
+.muted{color:var(--muted)}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:18px}
+@media (max-width:760px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.stack{display:flex;flex-direction:column;gap:18px}
+.btn{font:600 14px var(--f-text);border-radius:6px;padding:9px 16px;border:1px solid var(--accent-strong);background:var(--accent-strong);color:var(--on-accent);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent-strong)}
+.btn.small{padding:5px 11px;font-size:13px}
+.btn.danger{border-color:var(--bad);color:var(--bad);background:transparent}
+.btn:disabled{opacity:.45;cursor:default}
+button:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.gate{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-top:1px solid var(--line)}
+.gate:first-of-type{border-top:0}
+.dot{flex:none;width:18px;height:18px;border-radius:50%;border:2px solid var(--line);margin-top:2px;display:grid;place-items:center;font-size:11px;color:var(--surface)}
+.dot.on{background:var(--good);border-color:var(--good)}
+.ready{border-radius:6px;padding:12px 14px;margin-bottom:12px;font-weight:600}
+.ready.no{background:var(--soft);color:var(--accent-strong)}
+.ready.yes{background:var(--good-soft);color:var(--good)}
+.mod{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:center;padding:11px 0;border-top:1px solid var(--line)}
+.mod:first-of-type{border-top:0}
+.mod .name{font-weight:600}
+.acs{font-family:var(--f-mono);font-size:12px;color:var(--muted);margin-left:6px}
+.bar{grid-column:1/-1;height:8px;border-radius:4px;background:var(--soft);position:relative;overflow:hidden}
+.bar i{position:absolute;inset:0 auto 0 0;background:var(--accent);border-radius:4px}
+.bar b{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--ink)}
+.mod .stat{grid-column:1/-1;font-size:12.5px;color:var(--muted)}
+table.hist{width:100%;border-collapse:collapse;font-size:14px}
+table.hist td,table.hist th{text-align:left;padding:7px 6px;border-top:1px solid var(--line)}
+table.hist th{font-weight:600;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.05em;border-top:0}
+.pill{display:inline-block;padding:1px 8px;border-radius:10px;font-size:12px;font-weight:600}
+.pill.pass{background:var(--good-soft);color:var(--good)}
+.pill.fail{background:var(--bad-soft);color:var(--bad)}
+.pill.gate85{background:var(--soft);color:var(--accent-strong)}
+.modcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.modcard{text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px;cursor:pointer;font:inherit;color:inherit;display:flex;flex-direction:column;gap:4px}
+.modcard:hover{border-color:var(--accent)}
+.modcard .n{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-strong);font-weight:700}
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.progress{height:4px;background:var(--soft);border-radius:2px;margin-bottom:16px;overflow:hidden}
+.progress i{display:block;height:100%;background:var(--accent)}
+.tag{font-family:var(--f-mono);font-size:12px;color:var(--accent-strong);background:var(--soft);padding:2px 8px;border-radius:4px}
+.stem{font-size:18px;font-weight:500;margin:6px 0 16px;line-height:1.45;max-width:65ch}
+.choices{display:flex;flex-direction:column;gap:8px}
+.choice{display:flex;gap:12px;align-items:flex-start;text-align:left;font:inherit;color:inherit;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:12px 14px;cursor:pointer}
+.choice:hover:not(:disabled){border-color:var(--accent)}
+.choice .l{flex:none;width:26px;height:26px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;font-family:var(--f-mono);font-size:13px}
+.choice.sel{border-color:var(--accent);background:var(--soft)}
+.choice.sel .l{background:var(--accent-strong);color:var(--on-accent);border-color:var(--accent-strong)}
+.choice.right{border-color:var(--good);background:var(--good-soft)}
+.choice.right .l{background:var(--good);border-color:var(--good);color:var(--surface)}
+.choice.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.choice.wrong .l{background:var(--bad);border-color:var(--bad);color:var(--surface)}
+.choice:disabled{cursor:default}
+.explain{margin-top:14px;border-left:3px solid var(--accent);padding:10px 14px;background:var(--soft);border-radius:0 6px 6px 0;max-width:70ch}
+.explain .ref{font-family:var(--f-mono);font-size:12.5px;color:var(--muted);display:block;margin-top:4px}
+.linkbtn{background:none;border:0;padding:0;font:600 13px var(--f-text);color:var(--accent-strong);cursor:pointer;text-decoration:underline;margin-top:6px}
+.actions{display:flex;gap:10px;justify-content:space-between;align-items:center;margin-top:18px;flex-wrap:wrap}
+.timer{font-family:var(--f-mono);font-size:20px;font-variant-numeric:tabular-nums}
+.timer.low{color:var(--bad)}
+.qgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(34px,1fr));gap:5px;margin-top:16px}
+.qgrid button{font:500 12px var(--f-mono);height:32px;border-radius:5px;border:1px solid var(--line);background:var(--surface);color:var(--muted);cursor:pointer;position:relative}
+.qgrid button.ans{background:var(--soft);color:var(--ink);border-color:var(--soft)}
+.qgrid button.cur{outline:2px solid var(--accent);outline-offset:1px}
+.qgrid button.flag::after{content:"";position:absolute;top:3px;right:3px;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.score{font-family:var(--f-display);font-weight:700;font-size:60px;line-height:1;margin:6px 0}
+.scale{position:relative;height:14px;border-radius:7px;background:var(--soft);margin:14px 0 28px}
+.scale i{position:absolute;inset:0 auto 0 0;border-radius:7px;background:var(--accent)}
+.scale b{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--ink)}
+.scale span{position:absolute;top:20px;font-size:11.5px;transform:translateX(-50%);white-space:nowrap;font-family:var(--f-mono)}
+.review{border-top:1px solid var(--line);padding:14px 0}
+.flash{min-height:220px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;cursor:pointer;gap:10px;padding:28px}
+.flash .front{font-size:20px;font-weight:600;max-width:40ch}
+.flash .back{font-size:17px;color:var(--accent-strong);max-width:46ch}
+.boxes{display:flex;gap:6px;margin-top:12px}
+.boxes div{flex:1;text-align:center;font-size:12px;color:var(--muted)}
+.boxes div b{display:block;font-family:var(--f-mono);font-size:17px;color:var(--ink)}
+.note{font-size:13px;color:var(--muted);max-width:75ch;border-top:1px solid var(--line);padding-top:14px}
+kbd{font-family:var(--f-mono);font-size:12px;border:1px solid var(--line);border-radius:4px;padding:0 5px}
+/* Handbook */
+.hb{display:grid;grid-template-columns:250px minmax(0,1fr);gap:22px;align-items:start}
+@media (max-width:760px){.hb{grid-template-columns:minmax(0,1fr)}}
+.toc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 0;max-height:calc(100vh - 40px);overflow:auto}
+@media (max-width:760px){.toc{position:static;max-height:none}}
+.toc summary{cursor:pointer;font-weight:700;padding:8px 14px;color:var(--head)}
+.toc .mh{font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:700;padding:10px 14px 4px}
+.toc button{display:flex;gap:8px;width:100%;text-align:left;background:none;border:0;font:14px var(--f-text);color:var(--ink);padding:6px 14px;cursor:pointer;align-items:baseline}
+.toc button:hover{background:var(--soft)}
+.toc button.cur{background:var(--soft);font-weight:600;box-shadow:inset 3px 0 0 var(--accent)}
+.toc button .ck{flex:none;width:14px;color:var(--good);font-size:12px}
+.toc button .no{flex:none;font-family:var(--f-mono);font-size:12px;color:var(--muted);width:24px}
+.lesson{max-width:72ch}
+.crumb{font-size:13px;color:var(--muted);margin-bottom:4px}
+.lesson h2{font-size:28px;margin-bottom:6px}
+.obj{background:var(--soft);border-radius:6px;padding:10px 14px;margin:12px 0 18px;font-size:14.5px}
+.obj b{color:var(--accent-strong)}
+.lesson h4{font-size:16px;margin:22px 0 6px;color:var(--ink)}
+.lesson p,.lesson li{max-width:68ch}
+.lesson ul,.lesson ol{padding-left:22px}
+.lesson li{margin:4px 0}
+.lesson table{border-collapse:collapse;width:100%;margin:12px 0;font-size:14.5px;display:block;overflow-x:auto}
+.lesson th,.lesson td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+.lesson th{background:var(--soft);font-weight:600}
+.code{font-family:var(--f-mono);font-size:13.5px;background:var(--soft);padding:8px 10px;border-radius:5px;display:block;overflow-x:auto;line-height:1.7}
+.key,.bds{border-radius:6px;padding:12px 14px;margin:18px 0;font-size:14.5px}
+.key{border:1px solid var(--accent);background:var(--surface)}
+.bds{background:var(--band);color:#efe6de}
+.key b,.bds b{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px}
+.key b{color:var(--accent-strong)} .bds b{color:#ee7a44}
+.refs{border-top:1px solid var(--line);margin-top:22px;padding-top:12px;font-size:14px}
+.refs a{color:var(--accent-strong)}
+.fig{margin:6px 0 18px}
+.figscroll{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:8px}
+.fig svg{display:block;width:100%;min-width:560px;height:auto}
+.fig figcaption{font-size:13px;color:var(--muted);margin-top:6px}
+.svt{font:600 13px var(--f-text);fill:var(--ink)} .svs{font:12px var(--f-text);fill:var(--muted)} .svo{font:600 12px var(--f-text);fill:var(--accent)}
+@media (prefers-reduced-motion:no-preference){.choice,.modcard,.btn,.toc button{transition:border-color .15s,background .15s}}
+.plan-week{border-top:1px solid var(--line);padding:18px 0}
+.plan-week:first-of-type{border-top:0;padding-top:4px}
+.wk-tag{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--accent-strong)}
+.plan-week h3{margin:2px 0 8px;font-family:var(--f-display);font-size:19px}
+.session{background:var(--soft);border-radius:6px;padding:10px 14px;margin:10px 0 12px;font-size:14px}
+.session b{color:var(--head)}
+.check{display:flex;gap:10px;align-items:flex-start;padding:6px 0;cursor:pointer;line-height:1.45}
+.check input{flex:none;margin-top:3px;width:18px;height:18px;accent-color:var(--accent)}
+.check.done span{color:var(--muted);text-decoration:line-through}
+.pbar{height:8px;border-radius:4px;background:var(--line);overflow:hidden;margin:8px 0 4px}
+.pbar i{display:block;height:100%;background:var(--good)}
+.field{font:15px var(--f-text);padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);width:100%;max-width:340px}
+.okmsg{color:var(--good);font-weight:600;font-size:14px}
+</style>
+
+<header class="band"><div class="inner">
+  <img src="data:image/jpeg;base64,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" alt="BDS logo">
+  <div><h1>BDS <span>Part 107 Training</span></h1><p>Pilot handbook and test prep for the FAA UAG knowledge test · 60 questions · 2 hours · 70% to pass</p></div>
+</div></header>
+<div class="inner">
+  <nav class="tabs" role="tablist" id="tabs"></nav>
+  <main id="app"></main>
+  <p class="note">Progress is saved in this browser on this device. Lessons and practice questions are written by BDS against the FAA Remote Pilot ACS (FAA-S-ACS-10B). They are not actual FAA test questions and do not replace the FAA references linked in each lesson. Since October 26, 2026 the FAA test can show sectional chart crops not in the testing supplement.</p>
+</div>
+
+<script>
+const REF={
+"become": [
+"FAA: Become a Certificated Remote Pilot",
+"https://www.faa.gov/uas/commercial_operators/become_a_drone_pilot"
+],
+"c61": [
+"14 CFR 107.61 Eligibility",
+"https://www.ecfr.gov/current/title-14/chapter-I/subchapter-F/part-107/subpart-C/section-107.61"
+],
+"c65": [
+"14 CFR 107.65 Aeronautical knowledge recency",
+"https://www.ecfr.gov/current/title-14/chapter-I/subchapter-F/part-107/subpart-C/section-107.65"
+],
+"c7": [
+"14 CFR 107.7 Inspection, testing, and demonstration of compliance",
+"https://www.ecfr.gov/current/title-14/chapter-I/subchapter-F/part-107/subpart-A/section-107.7"
+],
+"c9": [
+"14 CFR 107.9 Safety event reporting",
+"https://www.ecfr.gov/current/title-14/chapter-I/subchapter-F/part-107/subpart-A/section-107.9"
+],
+"c19": [
+"14 CFR 107.19 Remote pilot in command",
+"https://www.ecfr.gov/current/title-14/chapter-I/subchapter-F/part-107/subpart-B/section-107.19"
+],
+"c27": [
+"14 CFR 107.27 Alcohol or drugs",
+"https://www.ecfr.gov/current/title-14/chapter-I/subchapter-F/part-107/subpart-B/section-107.27"
+],
+"c25": [
+"14 CFR 107.25 Operation from a moving vehicle",
+"https://www.ecfr.gov/current/title-14/chapter-I/subchapter-F/part-107/subpart-B/section-107.25"
+],
+"c29": [
+"14 CFR 107.29 Operation at night",
+"https://www.ecfr.gov/current/title-14/chapter-I/subchapter-F/part-107/subpart-B/section-107.29"
+],
+"c31": [
+"14 CFR 107.31 Visual line of sight",
+"https://www.ecfr.gov/current/title-14/chapter-I/subchapter-F/part-107/subpart-B/section-107.31"
+],
+"c37": [
+"14 CFR 107.37 Right of way",
+"https://www.ecfr.gov/current/title-14/chapter-I/subchapter-F/part-107/subpart-B/section-107.37"
+],
+"c41": [
+"14 CFR 107.41 Operation in certain airspace",
+"https://www.ecfr.gov/current/title-14/chapter-I/subchapter-F/part-107/subpart-B/section-107.41"
+],
+"c43": [
+"14 CFR 107.43 Operation near airports",
+"https://www.ecfr.gov/current/title-14/chapter-I/subchapter-F/part-107/subpart-B/section-107.43"
+],
+"c49": [
+"14 CFR 107.49 Preflight familiarization, inspection, and actions",
+"https://www.ecfr.gov/current/title-14/chapter-I/subchapter-F/part-107/subpart-B/section-107.49"
+],
+"c51": [
+"14 CFR 107.51 Operating limitations",
+"https://www.ecfr.gov/current/title-14/chapter-I/subchapter-F/part-107/subpart-B/section-107.51"
+],
+"cD": [
+"14 CFR Part 107 Subpart D: Operations over human beings",
+"https://www.ecfr.gov/current/title-14/chapter-I/subchapter-F/part-107/subpart-D"
+],
+"c205": [
+"14 CFR 107.205 Regulations subject to waiver",
+"https://www.ecfr.gov/current/title-14/chapter-I/subchapter-F/part-107/subpart-E/section-107.205"
+],
+"p89": [
+"14 CFR Part 89 Subpart B: Remote ID operating requirements",
+"https://www.ecfr.gov/current/title-14/chapter-I/subchapter-F/part-89/subpart-B"
+],
+"alc677": [
+"FAASafety.gov ALC-677 recurrent training course",
+"https://www.faasafety.gov/gslac/ALC/CourseLanding.aspx?cID=677"
+],
+"regdrone": [
+"FAA: How to Register Your Drone",
+"https://www.faa.gov/uas/getting_started/register_drone"
+],
+"rid": [
+"FAA: Remote Identification of Drones",
+"https://www.faa.gov/uas/getting_started/remote_id"
+],
+"laanc": [
+"FAA: UAS Data Exchange (LAANC)",
+"https://www.faa.gov/uas/getting_started/laanc"
+],
+"sg1": [
+"Remote Pilot Study Guide, Ch. 1 Applicable Regulations (p. 3)",
+"https://www.faa.gov/sites/faa.gov/files/uas/resources/policy_library/remote_pilot_study_guide.pdf"
+],
+"sg2": [
+"Remote Pilot Study Guide, Ch. 2 Airspace (p. 5)",
+"https://www.faa.gov/sites/faa.gov/files/uas/resources/policy_library/remote_pilot_study_guide.pdf"
+],
+"sg3a": [
+"Remote Pilot Study Guide, Ch. 3a Weather Sources (p. 15)",
+"https://www.faa.gov/sites/faa.gov/files/uas/resources/policy_library/remote_pilot_study_guide.pdf"
+],
+"sg3b": [
+"Remote Pilot Study Guide, Ch. 3b Weather Effects (p. 21)",
+"https://www.faa.gov/sites/faa.gov/files/uas/resources/policy_library/remote_pilot_study_guide.pdf"
+],
+"sg4": [
+"Remote Pilot Study Guide, Ch. 4 Loading (p. 29)",
+"https://www.faa.gov/sites/faa.gov/files/uas/resources/policy_library/remote_pilot_study_guide.pdf"
+],
+"sg5": [
+"Remote Pilot Study Guide, Ch. 5 Emergency Procedures (p. 35)",
+"https://www.faa.gov/sites/faa.gov/files/uas/resources/policy_library/remote_pilot_study_guide.pdf"
+],
+"sg6": [
+"Remote Pilot Study Guide, Ch. 6 Crew Resource Management (p. 37)",
+"https://www.faa.gov/sites/faa.gov/files/uas/resources/policy_library/remote_pilot_study_guide.pdf"
+],
+"sg7": [
+"Remote Pilot Study Guide, Ch. 7 Radio Communication (p. 39)",
+"https://www.faa.gov/sites/faa.gov/files/uas/resources/policy_library/remote_pilot_study_guide.pdf"
+],
+"sg8": [
+"Remote Pilot Study Guide, Ch. 8 Performance (p. 43)",
+"https://www.faa.gov/sites/faa.gov/files/uas/resources/policy_library/remote_pilot_study_guide.pdf"
+],
+"sg9": [
+"Remote Pilot Study Guide, Ch. 9 Physiological Factors (p. 45)",
+"https://www.faa.gov/sites/faa.gov/files/uas/resources/policy_library/remote_pilot_study_guide.pdf"
+],
+"sg10": [
+"Remote Pilot Study Guide, Ch. 10 Aeronautical Decision-Making (p. 51)",
+"https://www.faa.gov/sites/faa.gov/files/uas/resources/policy_library/remote_pilot_study_guide.pdf"
+],
+"sg11": [
+"Remote Pilot Study Guide, Ch. 11 Airport Operations (p. 65)",
+"https://www.faa.gov/sites/faa.gov/files/uas/resources/policy_library/remote_pilot_study_guide.pdf"
+],
+"sg12": [
+"Remote Pilot Study Guide, Ch. 12 Maintenance and Preflight (p. 71)",
+"https://www.faa.gov/sites/faa.gov/files/uas/resources/policy_library/remote_pilot_study_guide.pdf"
+],
+"ph2": [
+"PHAK Ch. 2 Aeronautical Decision-Making (PDF)",
+"https://www.faa.gov/sites/faa.gov/files/04_phak_ch2.pdf"
+],
+"ph5": [
+"PHAK Ch. 5 Aerodynamics of Flight (PDF)",
+"https://www.faa.gov/sites/faa.gov/files/07_phak_ch5_0.pdf"
+],
+"ph10": [
+"PHAK Ch. 10 Weight and Balance (PDF)",
+"https://www.faa.gov/sites/faa.gov/files/12_phak_ch10.pdf"
+],
+"ph11": [
+"PHAK Ch. 11 Aircraft Performance (PDF)",
+"https://www.faa.gov/sites/faa.gov/files/13_phak_ch11.pdf"
+],
+"ph12": [
+"PHAK Ch. 12 Weather Theory (PDF)",
+"https://www.faa.gov/sites/faa.gov/files/14_phak_ch12.pdf"
+],
+"ph13": [
+"PHAK Ch. 13 Aviation Weather Services (PDF)",
+"https://www.faa.gov/sites/faa.gov/files/15_phak_ch13.pdf"
+],
+"ph14": [
+"PHAK Ch. 14 Airport Operations (PDF)",
+"https://www.faa.gov/sites/faa.gov/files/16_phak_ch14_0.pdf"
+],
+"ph15": [
+"PHAK Ch. 15 Airspace (PDF)",
+"https://www.faa.gov/sites/faa.gov/files/17_phak_ch15.pdf"
+],
+"ph16": [
+"PHAK Ch. 16 Navigation (PDF)",
+"https://www.faa.gov/sites/faa.gov/files/18_phak_ch16.pdf"
+],
+"ph17": [
+"PHAK Ch. 17 Aeromedical Factors (PDF)",
+"https://www.faa.gov/sites/faa.gov/files/19_phak_ch17.pdf"
+],
+"aim34": [
+"AIM 3-4 Special Use Airspace",
+"https://www.faa.gov/air_traffic/publications/atpubs/aim_html/chap3_section_4.html"
+],
+"aim35": [
+"AIM 3-5 Other Airspace Areas",
+"https://www.faa.gov/air_traffic/publications/atpubs/aim_html/chap3_section_5.html"
+],
+"aim42": [
+"AIM 4-2 Radio Communications Phraseology",
+"https://www.faa.gov/air_traffic/publications/atpubs/aim_html/chap4_section_2.html"
+],
+"aim43": [
+"AIM 4-3 Airport Operations",
+"https://www.faa.gov/air_traffic/publications/atpubs/aim_html/chap4_section_3.html"
+],
+"cug": [
+"Chart User's Guide (current edition download)",
+"https://www.faa.gov/air_traffic/flight_info/aeronav/digital_products/aero_guide/"
+],
+"vfr": [
+"FAA sectional charts: Seattle and Klamath Falls (free download)",
+"https://www.faa.gov/air_traffic/flight_info/aeronav/digital_products/vfr/#sectional"
+],
+"supp": [
+"FAA Airman Knowledge Testing Supplements",
+"https://www.faa.gov/training_testing/testing/supplements"
+],
+"acs": [
+"Remote Pilot sUAS ACS (FAA-S-ACS-10B)",
+"https://www.faa.gov/training_testing/testing/acs/uas_acs.pdf"
+],
+"awc": [
+"Aviation Weather Center",
+"https://aviationweather.gov/"
+],
+"metar": [
+"Aviation Weather Center: METAR and TAF lookup",
+"https://aviationweather.gov/metar/data"
+]
+};
+
+const AIRSPACE_SVG=`<figure class="fig"><div class="figscroll"><svg viewBox="0 0 720 300" role="img" aria-label="Airspace classes side view">
+<rect x="0" y="16" width="720" height="28" rx="4" fill="var(--soft)" stroke="var(--line)"/>
+<text x="360" y="35" text-anchor="middle" class="svt">Class A · 18,000 ft MSL up to FL600</text>
+<text x="360" y="62" text-anchor="middle" class="svs">Class E fills the gap between the shapes below and Class A (generally from 1,200 ft AGL)</text>
+<path d="M30 80H290V125H250V170H200V262H120V170H70V125H30Z" fill="none" stroke="var(--b-blue)" stroke-width="2"/>
+<text x="160" y="104" text-anchor="middle" class="svt">Class B</text>
+<text x="160" y="120" text-anchor="middle" class="svs">surface to 10,000 ft MSL</text>
+<path d="M320 160H480V205H440V262H360V205H320Z" fill="none" stroke="var(--c-mag)" stroke-width="2"/>
+<text x="400" y="180" text-anchor="middle" class="svt">Class C</text>
+<text x="400" y="196" text-anchor="middle" class="svs">surface to 4,000 ft AGL</text>
+<rect x="508" y="205" width="76" height="57" fill="none" stroke="var(--b-blue)" stroke-width="2" stroke-dasharray="6 4"/>
+<text x="546" y="182" text-anchor="middle" class="svt">Class D</text>
+<text x="546" y="198" text-anchor="middle" class="svs">to about 2,500 ft AGL</text>
+<line x1="606" y1="236" x2="712" y2="236" stroke="var(--c-mag)" stroke-width="2" stroke-dasharray="2 3"/>
+<text x="659" y="214" text-anchor="middle" class="svt">Class E</text>
+<text x="659" y="229" text-anchor="middle" class="svs">from 700 ft AGL</text>
+<text x="659" y="256" text-anchor="middle" class="svs">Class G below</text>
+<line x1="0" y1="249" x2="720" y2="249" stroke="var(--accent)" stroke-width="2" stroke-dasharray="7 5"/>
+<text x="6" y="244" class="svo">400 ft AGL · Part 107 ceiling</text>
+<line x1="0" y1="262" x2="720" y2="262" stroke="var(--ink)" stroke-width="2"/>
+<circle cx="160" cy="262" r="4" fill="var(--ink)"/><circle cx="400" cy="262" r="4" fill="var(--ink)"/><circle cx="546" cy="262" r="4" fill="var(--ink)"/><circle cx="680" cy="262" r="4" fill="var(--ink)"/>
+<text x="160" y="282" text-anchor="middle" class="svs">Busiest airports</text><text x="400" y="282" text-anchor="middle" class="svs">Radar approach airport</text><text x="546" y="282" text-anchor="middle" class="svs">Towered</text><text x="680" y="282" text-anchor="middle" class="svs">Nontowered</text>
+</svg></div><figcaption>Side view, not to scale. Any part of the orange 400 ft line inside B, C, D or a Class E surface area needs ATC authorization.</figcaption></figure>`;
+
+const PATTERN_SVG=`<figure class="fig"><div class="figscroll"><svg viewBox="0 0 640 310" role="img" aria-label="Left traffic pattern for runway 27">
+<defs><marker id="pa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--accent)"/></marker></defs>
+<text x="320" y="26" text-anchor="middle" class="svs">Wind from the west, so aircraft land on runway 27 (heading about 270°)</text>
+<rect x="200" y="70" width="240" height="20" rx="2" fill="var(--soft)" stroke="var(--ink)"/>
+<text x="214" y="84" class="svt">9</text><text x="420" y="84" class="svt">27</text>
+<g fill="none" stroke="var(--accent)" stroke-width="2.5">
+<path d="M570 80H448" marker-end="url(#pa)"/>
+<path d="M195 80H100" marker-end="url(#pa)"/>
+<path d="M90 90V212" marker-end="url(#pa)"/>
+<path d="M100 222H552" marker-end="url(#pa)"/>
+<path d="M562 212V92" marker-end="url(#pa)"/>
+<path d="M232 300L312 228" stroke-dasharray="6 4" marker-end="url(#pa)"/>
+</g>
+<text x="500" y="64" text-anchor="middle" class="svt">Final</text>
+<text x="146" y="64" text-anchor="middle" class="svt">Upwind / departure</text>
+<text x="80" y="156" text-anchor="end" class="svt">Crosswind</text>
+<text x="326" y="246" text-anchor="middle" class="svt">Downwind</text>
+<text x="574" y="156" class="svt">Base</text>
+<text x="244" y="272" text-anchor="end" class="svs">45° entry, abeam midfield</text>
+</svg></div><figcaption>Standard left-hand pattern: every turn is to the left. Downwind runs parallel to the runway, opposite the landing direction.</figcaption></figure>`;
+
+const LESSONS=[
+// ---------- Module 1 Regulations
+{id:"1.1",m:1,t:"Getting and keeping your certificate",min:8,obj:"Explain who needs a Remote Pilot Certificate, how to get one, and how to keep it current.",
+body:`<p>Any flight that is not purely recreational, including every BDS job, is flown under Part 107 by a pilot holding a Remote Pilot Certificate with a small UAS rating.</p>
+<h4>Eligibility (§107.61)</h4><ul><li>At least 16 years old.</li><li>Able to read, speak, write and understand English.</li><li>Not aware of any physical or mental condition that would interfere with safe operation.</li><li>Passed the initial knowledge test (UAG), or holds a Part 61 pilot certificate with a current flight review and completed the FAA online course.</li></ul>
+<h4>The path to the certificate</h4><ol><li>Create an IACRA profile to get your FAA Tracking Number (FTN).</li><li>Schedule and pass the UAG test at a PSI testing center (70% to pass).</li><li>Apply in IACRA (FAA Form 8710-13) using the 17-digit Knowledge Test Exam ID.</li><li>TSA completes a security check; IACRA then issues a temporary certificate, and the permanent card arrives by mail.</li></ol>
+<h4>Staying current</h4><p>You must complete the free online recurrent training on FAASafety.gov within the previous <b>24 calendar months</b> (§107.65). Calendar months means it runs to the end of the month.</p>
+<p>Carry your certificate whenever you fly and present it on request to the FAA, NTSB, TSA, or any federal, state or local law enforcement officer (§107.7).</p>
+<div class="key"><b>On the test</b>Age 16 · 70% to pass · recurrent every 24 calendar months · present the certificate on request.</div>
+<div class="bds"><b>BDS practice</b>Log your recurrent completion date with the chief pilot. BDS will not dispatch a pilot within 30 days of their recency lapsing.</div>`,
+refs:["become", "c61", "c65", "alc677", "c7", "sg1"]},
+{id:"1.2",m:1,t:"Registration and Remote ID",min:7,obj:"Register an aircraft correctly and choose a Remote ID compliance method.",
+body:`<h4>Registration (Part 48)</h4><p>Register each Part 107 aircraft in FAA DroneZone. Registration lasts <b>3 years</b>, and the registration number must be marked on an <b>external surface</b> of the aircraft. Have the registration available whenever you fly.</p>
+<h4>Remote ID (Part 89)</h4><p>Remote ID is a digital license plate: the aircraft broadcasts its identity, position, altitude, velocity, control station location, time and emergency status. There are three ways to comply:</p>
+<table><thead><tr><th>Method</th><th>How it works</th></tr></thead><tbody>
+<tr><td>Standard Remote ID drone</td><td>Broadcast built in by the manufacturer. Most current DJI enterprise aircraft, including the M3M and M350, fall here.</td></tr>
+<tr><td>Broadcast module</td><td>An add-on device for older aircraft. Its serial number is listed on the aircraft's registration.</td></tr>
+<tr><td>FAA-Recognized Identification Area (FRIA)</td><td>A fixed site, usually a club field, where aircraft without Remote ID may fly within visual line of sight.</td></tr></tbody></table>
+<p>The serial number entered in DroneZone must match the Remote ID serial on the aircraft or module.</p>
+<div class="key"><b>On the test</b>3-year registration · number on an external surface · three Remote ID options.</div>`,
+refs:["regdrone", "rid", "p89"]},
+{id:"1.3",m:1,t:"Operating limitations",min:6,obj:"State every limit in §107.51 from memory.",
+body:`<p>These limits apply to every Part 107 flight unless you hold a waiver.</p>
+<table><thead><tr><th>Limit</th><th>Value</th></tr></thead><tbody>
+<tr><td>Groundspeed</td><td>87 knots (100 mph)</td></tr>
+<tr><td>Altitude</td><td>400 ft AGL, or within a 400-ft radius of a structure, up to 400 ft above its top</td></tr>
+<tr><td>Flight visibility</td><td>3 statute miles from the control station</td></tr>
+<tr><td>Cloud clearance</td><td>500 ft below, 2,000 ft horizontally</td></tr>
+<tr><td>Weight</td><td>Under 55 lb at takeoff, including everything on board</td></tr></tbody></table>
+<p>The structure allowance is the one that shows up in test scenarios. A 300-ft tower lets you fly to 700 ft AGL, but only while you stay within 400 ft of it laterally.</p>
+<div class="key"><b>On the test</b>Watch for MSL vs. AGL and knots vs. mph traps in the answer choices.</div>`,
+refs:["c51", "sg1"]},
+{id:"1.4",m:1,t:"Remote PIC responsibility",min:7,obj:"Describe the RPIC's authority and the fitness, alcohol and hazard rules.",
+body:`<p>The remote pilot in command (RPIC) is directly responsible for, and is the final authority on, the operation (§107.19). The RPIC must make sure the flight poses no undue hazard to people, aircraft or property if control is lost.</p>
+<ul><li><b>Condition for safe operation (§107.15):</b> inspect the aircraft before every flight and do not fly it if it is not in a condition for safe operation.</li>
+<li><b>Medical condition (§107.17):</b> do not fly if you know or have reason to know of a condition that would interfere with safe operation.</li>
+<li><b>Alcohol and drugs (§107.27, §91.17):</b> no alcohol within <b>8 hours</b>, blood alcohol below <b>0.04</b>, and no drugs that affect your faculties.</li>
+<li><b>Hazardous operation (§107.23):</b> no careless or reckless flying. Dropping an object is allowed only if it creates no undue hazard.</li>
+<li><b>Hazardous materials (§107.36):</b> may not be carried. This section cannot be waived.</li>
+<li><b>Emergencies (§107.21):</b> you may deviate from any rule as needed to meet an in-flight emergency, and must send a report if the FAA asks.</li></ul>
+<div class="bds"><b>BDS practice</b>Ag spray work with the Agras and EAVision aircraft runs under Part 137 and BDS's exemption, not Part 107 alone. That is covered in BDS company training, not on the FAA test.</div>`,
+refs:["c19", "c27", "sg9"]},
+{id:"1.5",m:1,t:"Line of sight, crew and vehicles",min:6,obj:"Apply the VLOS, visual observer and moving-vehicle rules.",
+body:`<ul><li><b>Visual line of sight (§107.31):</b> the RPIC, the person manipulating the controls, or a visual observer must see the aircraft with their own eyes (corrective lenses allowed) well enough to know its location, attitude, altitude and direction, see other traffic, and confirm it is not endangering anyone. A screen or binoculars does not count.</li>
+<li><b>Visual observer (§107.33):</b> optional. The VO, RPIC and person at the controls must keep effective communication. The RPIC must still be able to see the aircraft if needed.</li>
+<li><b>One aircraft at a time (§107.35):</b> one pilot or VO may not fly or observe more than one small UA at once without a waiver.</li>
+<li><b>Uncertificated operator (§107.12):</b> someone without a certificate may fly only under direct supervision of the RPIC, who can immediately take direct control.</li>
+<li><b>Moving vehicles (§107.25):</b> you may fly from a moving land or water vehicle only over a sparsely populated area, and never from a moving aircraft.</li></ul>
+<div class="key"><b>On the test</b>FPV goggles and binoculars never satisfy VLOS.</div>`,
+refs:["c31", "c25", "sg1"]},
+{id:"1.6",m:1,t:"Operations over people",min:8,obj:"Match an aircraft to its over-people category and the limits that come with it.",
+body:`<p>Flying over people who are not crew is allowed only within one of four categories (Part 107 Subpart D).</p>
+<table><thead><tr><th>Category</th><th>Requirement</th></tr></thead><tbody>
+<tr><td>1</td><td>Weighs 0.55 lb or less, including everything on board.</td></tr>
+<tr><td>2</td><td>Manufacturer declaration of compliance; impact no worse than 11 ft-lb of kinetic energy; no exposed rotating parts that could lacerate skin.</td></tr>
+<tr><td>3</td><td>Declaration of compliance; impact no worse than 25 ft-lb. No sustained flight over open-air assemblies, and only over a closed or restricted site, or people briefly transiting.</td></tr>
+<tr><td>4</td><td>FAA airworthiness certificate and an approved operating limitations document.</td></tr></tbody></table>
+<p>Sustained flight over open-air assemblies (crowds) also requires Remote ID compliance and is never allowed in Category 3.</p>
+<p>Over moving vehicles, you may only pass over briefly, or fly over vehicles inside a closed or restricted-access site where occupants have been told about the operation.</p>
+<div class="bds"><b>BDS practice</b>BDS treats crews in the field as non-participants unless they were briefed. Plan lines so the aircraft never passes over workers.</div>`,
+refs:["cD"]},
+{id:"1.7",m:1,t:"Night operations",min:5,obj:"State the requirements for flying at night and during civil twilight.",
+body:`<p>Night flight is allowed without a waiver if the pilot has taken the current initial knowledge test or the current recurrent training (both cover night operations) and the aircraft has anti-collision lighting (§107.29).</p>
+<ul><li>Anti-collision lights must be visible for <b>3 statute miles</b> with a flash rate sufficient to avoid a collision.</li>
+<li>The same lighting is required during <b>civil twilight</b>: outside Alaska, the 30 minutes before official sunrise and the 30 minutes after official sunset.</li>
+<li>Position lights alone do not meet the rule.</li></ul>
+<p>Module 5 covers night vision and illusions.</p>
+<div class="key"><b>On the test</b>3 statute miles · civil twilight needs lights too.</div>`,
+refs:["c29"]},
+{id:"1.8",m:1,t:"Accident reports and waivers",min:6,obj:"Know what to report, when, and how to request a waiver.",
+body:`<h4>Accident reporting (§107.9)</h4><p>Report to the FAA within <b>10 calendar days</b> if the operation results in:</p><ul><li>Serious injury to any person (AIS level 3 or higher) or any loss of consciousness, or</li><li>Damage to any property other than the small UA, if repair or replacement costs more than $500, or if the property is a total loss worth more than $500.</li></ul><p>Damage to the drone itself never triggers a report.</p>
+<h4>Waivers (§107.205)</h4><p>These sections can be waived: moving vehicles (107.25), daylight (107.29), VLOS (107.31), visual observer (107.33), multiple aircraft (107.35), yielding right of way (107.37a), over people (107.39), airspace (107.41), and operating limits (107.51). Apply through DroneZone with a safety case that explains how you mitigate the risk. Apply well ahead of the job.</p>
+<div class="bds"><b>BDS practice</b>Any incident, even one below the reporting threshold, gets reported to the chief pilot the same day.</div>`,
+refs:["c9", "c205"]},
+// ---------- Module 2 Airspace
+{id:"2.1",m:2,t:"The airspace classes",min:10,obj:"Describe each airspace class and whether a drone pilot needs permission there.",
+body:`${AIRSPACE_SVG}
+<table><thead><tr><th>Class</th><th>Typical extent</th><th>Drone access</th></tr></thead><tbody>
+<tr><td>A</td><td>18,000 ft MSL to FL600</td><td>Not in practice</td></tr>
+<tr><td>B</td><td>Surface to 10,000 ft MSL around the busiest airports, in tiers</td><td>ATC authorization</td></tr>
+<tr><td>C</td><td>Surface to 4,000 ft AGL; 5 nm core, 10 nm shelf from 1,200 ft AGL</td><td>ATC authorization</td></tr>
+<tr><td>D</td><td>Surface to about 2,500 ft AGL around towered airports</td><td>ATC authorization</td></tr>
+<tr><td>E surface</td><td>Surface area around some nontowered airports</td><td>ATC authorization</td></tr>
+<tr><td>E</td><td>Everything controlled that is not A–D, usually from 700 or 1,200 ft AGL</td><td>No authorization below its floor</td></tr>
+<tr><td>G</td><td>Uncontrolled, below the Class E floor</td><td>No authorization</td></tr></tbody></table>
+<p>Most BDS farm and nursery work is in Class G. Jobs near McMinnville or Salem can fall inside Class D or a Class E surface area.</p>`,
+refs:["ph15", "sg2"]},
+{id:"2.2",m:2,t:"Getting airspace authorization",min:7,obj:"Use UAS Facility Maps and LAANC to get authorization, and know when to use DroneZone.",
+body:`<p>§107.41 requires ATC authorization in Class B, C, D and Class E surface areas.</p>
+<ul><li><b>UAS Facility Maps</b> split controlled airspace into grids. Each grid's number is the highest altitude in ft AGL that can be authorized there without extra review. A 0 means the request needs further coordination.</li>
+<li><b>LAANC</b> gives near real-time approval at or below the grid altitude through FAA-approved apps.</li>
+<li><b>DroneZone</b> handles requests above the grid altitude or where LAANC is not available. Allow extra time.</li></ul>
+<p>Authorization covers airspace only. It does not clear you of TFRs, local laws or landowner permission.</p>
+<div class="bds"><b>BDS practice</b>Save the LAANC approval with the job file and brief its altitude and time window to the crew.</div>`,
+refs:["c41", "laanc"]},
+{id:"2.3",m:2,t:"Special use airspace",min:6,obj:"Identify each type of special use airspace and what it means for a drone flight.",
+body:`<table><thead><tr><th>Type</th><th>Meaning</th></tr></thead><tbody>
+<tr><td>Prohibited (P-)</td><td>Flight prohibited, for national security. Example: around the White House.</td></tr>
+<tr><td>Restricted (R-)</td><td>Hazards such as artillery fire. Needs permission from the controlling agency when active.</td></tr>
+<tr><td>Warning (W-)</td><td>Like restricted areas, but over international waters.</td></tr>
+<tr><td>MOA</td><td>Military training. No permission needed; use extra caution when active.</td></tr>
+<tr><td>Alert (A-)</td><td>High volume of pilot training or unusual activity. Stay alert.</td></tr>
+<tr><td>Controlled firing area</td><td>Activity is suspended when aircraft approach. Not charted.</td></tr></tbody></table>
+<p>Times of use and controlling agencies are listed in the margin of the sectional.</p>`,
+refs:["aim34", "ph15"]},
+{id:"2.4",m:2,t:"Other airspace areas and restrictions",min:7,obj:"Check for TFRs, stadium restrictions, military routes and other limits before every flight.",
+body:`<ul><li><b>TFRs and NOTAMs (§107.47):</b> temporary restrictions for wildfires, VIP movement, disasters and events. Check NOTAMs before every flight.</li>
+<li><b>Stadiums:</b> a standing restriction covers 3 nm and 3,000 ft AGL around qualifying events, from 1 hour before to 1 hour after.</li>
+<li><b>National security UAS flight restrictions:</b> standing limits over certain critical sites, shown on FAA drone maps.</li>
+<li><b>Military training routes:</b> VR and IR routes. Four-digit routes are flown at or below 1,500 ft AGL, so fast jets may pass low.</li>
+<li><b>Parks and refuges:</b> launching drones is banned in national parks. Wildlife refuges ask aircraft to stay above 2,000 ft AGL.</li></ul>
+<div class="bds"><b>BDS practice</b>Oregon fire season brings wildfire TFRs that pop up fast. Recheck NOTAMs the morning of the flight, not just when booking.</div>`,
+refs:["aim35", "sg2"]},
+{id:"2.5",m:2,t:"Airports and right of way",min:5,obj:"Avoid interfering with airport traffic and yield to every other aircraft.",
+body:`<ul><li><b>§107.43:</b> do not interfere with operations and traffic patterns at any airport, heliport or seaplane base.</li>
+<li><b>§107.37:</b> yield right of way to all aircraft, airborne vehicles and launch and reentry vehicles. Pass well clear and never create a collision hazard.</li>
+<li>See and avoid applies to you even when you have authorization.</li></ul>
+<p>Expect low traffic near small airports, ag operators working fields, and helicopters at any altitude. Module 5 covers traffic patterns and radio calls.</p>`,
+refs:["c43", "c37", "aim43"]},
+// ---------- Module 6 Charts
+{id:"6.1",m:6,t:"Sectional chart basics",min:8,obj:"Find a position, measure a distance and use the legend.",
+body:`<p>Sectional charts are drawn at <b>1:500,000</b>, about 6.9 nm per inch. Oregon is covered by the Seattle and Klamath Falls sectionals, updated every 56 days and free from the FAA.</p>
+<ul><li><b>Latitude and longitude:</b> lines are drawn every 30 minutes with ticks each minute. One minute of latitude equals about 1 nautical mile.</li>
+<li><b>Maximum Elevation Figures:</b> large and small numerals in each quadrant (for example 2 and 8 = 2,800 ft MSL) clear the highest terrain and obstacles in that quadrant.</li>
+<li><b>Legend and margins:</b> the legend panel explains every symbol; the margins list special use airspace times and frequencies.</li></ul>
+<div class="key"><b>On the test</b>Practice on a full current sectional, not only the supplement figures. Since October 26, 2026 the test can show crops you have never seen.</div>`,
+refs:["cug", "vfr", "supp"]},
+{id:"6.2",m:6,t:"Reading airspace on the chart",min:9,obj:"Identify every airspace boundary on a sectional and read its floor and ceiling.",
+body:`<table><thead><tr><th>Symbol</th><th>Airspace</th></tr></thead><tbody>
+<tr><td>Solid blue lines with 100/SFC style labels</td><td>Class B. Ceiling over floor, in hundreds of feet MSL.</td></tr>
+<tr><td>Solid magenta lines, labels like 40/15</td><td>Class C. 40/15 = ceiling 4,000, floor 1,500 ft MSL.</td></tr>
+<tr><td>Dashed blue line with [32] in a box</td><td>Class D. Ceiling 3,200 ft MSL.</td></tr>
+<tr><td>Dashed magenta line</td><td>Class E surface area.</td></tr>
+<tr><td>Magenta vignette (shaded band)</td><td>Class E begins at 700 ft AGL inside it.</td></tr>
+<tr><td>Blue vignette</td><td>Class E begins at 1,200 ft AGL beyond it.</td></tr>
+<tr><td>Blue hatched borders</td><td>Prohibited, restricted and warning areas.</td></tr>
+<tr><td>Magenta hatched borders</td><td>MOAs and alert areas.</td></tr>
+<tr><td>Thin gray lines labeled IR/VR</td><td>Military training routes.</td></tr></tbody></table>
+<p>Read the label first, then check whether its numbers are MSL (most labels) or AGL (SFC means surface).</p>`,
+refs:["cug", "ph15"]},
+{id:"6.3",m:6,t:"Airport data blocks",min:8,obj:"Decode an airport's name block for frequency, elevation and runway information.",
+body:`<p>Example block: <span class="code">McMINNVILLE (MMV) CT – 124.7 ★ Ⓒ ATIS 118.475 163 L 59 122.95</span></p>
+<table><thead><tr><th>Item</th><th>Meaning</th></tr></thead><tbody>
+<tr><td>CT – 124.7</td><td>Control tower frequency</td></tr>
+<tr><td>★ after the frequency</td><td>Tower operates part time</td></tr>
+<tr><td>Ⓒ (C in a solid circle)</td><td>That frequency is the CTAF when the tower is closed</td></tr>
+<tr><td>163</td><td>Field elevation, ft MSL</td></tr>
+<tr><td>L</td><td>Runway lighting (an asterisk means limited)</td></tr>
+<tr><td>59</td><td>Longest runway in hundreds of feet: 5,900 ft</td></tr>
+<tr><td>122.95</td><td>UNICOM frequency</td></tr></tbody></table>
+<p>A star on top of the airport symbol means a rotating beacon. Blue airport symbols have a tower; magenta ones do not. The example frequencies are for practice; always check the current chart.</p>`,
+refs:["cug", "ph14"]},
+{id:"6.4",m:6,t:"Obstructions and terrain",min:6,obj:"Read obstruction heights and terrain from the chart.",
+body:`<ul><li>An obstruction shows two numbers: top in ft <b>MSL</b> (bold) and height above ground in ft <b>AGL</b> (in parentheses). 1249 (318) is a 318-ft tower whose top is 1,249 ft MSL.</li>
+<li>Rays around the symbol mean the obstruction is lighted. Two tips on one symbol is a group obstruction.</li>
+<li>Obstructions over 1,000 ft AGL get a larger symbol.</li>
+<li>Terrain is shown with contour lines and color tints. Check the elevation key in the legend.</li></ul>
+<p>To find ground elevation under an obstruction, subtract: 1,249 − 318 = 931 ft MSL.</p>`,
+refs:["cug", "ph16"]},
+{id:"6.5",m:6,t:"Cold-chart method",min:6,obj:"Answer a question about a chart crop you have never seen in under 90 seconds.",
+body:`<ol><li><b>Read the question first.</b> Know whether you are looking for airspace, a frequency, an altitude or a distance.</li>
+<li><b>Find the point</b> described by lat/long, a town or a distance from an airport.</li>
+<li><b>Work from the nearest line outward:</b> the closest boundary or vignette tells you the airspace.</li>
+<li><b>Check the label's units:</b> MSL, AGL or hundreds of feet.</li>
+<li><b>Eliminate</b> answers that mix units or describe the wrong symbol.</li></ol>
+<p>Drill with crops cut from current Seattle and Klamath Falls sectionals around BDS job sites.</p>`,
+refs:["vfr", "supp", "acs"]},
+// ---------- Module 3 Weather
+{id:"3.1",m:3,t:"Weather sources",min:5,obj:"Choose the right official source for each part of a weather check.",
+body:`<ul><li><b>METAR:</b> hourly observation at an airport, with specials (SPECI) when conditions change.</li>
+<li><b>TAF:</b> forecast for 5 statute miles around an airport, usually for 24 or 30 hours.</li>
+<li><b>Aviation Weather Center (aviationweather.gov):</b> METARs, TAFs, graphical forecasts and SIGMETs.</li>
+<li><b>Flight Service (1800wxbrief.com):</b> a full standard briefing including NOTAMs.</li>
+<li><b>Convective SIGMETs</b> warn of thunderstorms and other serious hazards.</li></ul>
+<p>Apps are fine for planning, but the test asks about these official products.</p>`,
+refs:["awc", "ph13", "sg3a"]},
+{id:"3.2",m:3,t:"Decoding METARs and TAFs",min:10,obj:"Decode a METAR and TAF without a key.",
+body:`<p class="code">METAR KSLE 181756Z 33008G15KT 10SM FEW035 BKN060 A3012</p>
+<table><thead><tr><th>Group</th><th>Meaning</th></tr></thead><tbody>
+<tr><td>KSLE</td><td>Salem McNary Field</td></tr>
+<tr><td>181756Z</td><td>18th day, 1756 UTC</td></tr>
+<tr><td>33008G15KT</td><td>Wind from 330° true at 8 knots, gusting 15</td></tr>
+<tr><td>10SM</td><td>Visibility 10 statute miles</td></tr>
+<tr><td>FEW035 BKN060</td><td>Few clouds at 3,500 ft AGL; broken layer (the ceiling) at 6,000 ft AGL</td></tr>
+<tr><td>A3012</td><td>Altimeter 30.12 inches of mercury</td></tr></tbody></table>
+<p>A ceiling is the lowest broken (BKN) or overcast (OVC) layer, or vertical visibility (VV). FEW and SCT are not ceilings. METARs also carry a temperature and dew point group; the closer the two values, the more likely fog or low clouds.</p>
+<h4>TAF change groups</h4><ul><li><b>FM1500:</b> from 1500Z, conditions change completely.</li><li><b>TEMPO 1518:</b> temporary fluctuations between 15Z and 18Z.</li><li><b>BECMG:</b> a gradual change over the period.</li><li><b>PROB30:</b> 30% chance.</li></ul>
+<p>A valid period like 1818/1918 runs from the 18th at 1800Z to the 19th at 1800Z. Pacific Standard Time is UTC minus 8 hours.</p>`,
+refs:["metar", "ph13"]},
+{id:"3.3",m:3,t:"The atmosphere and stability",min:7,obj:"Predict clouds, turbulence and visibility from air stability.",
+body:`<p>Temperature drops about <b>3.5°F per 1,000 ft</b> in the standard atmosphere. Pressure drops with altitude too.</p>
+<table><thead><tr><th></th><th>Stable air</th><th>Unstable air</th></tr></thead><tbody>
+<tr><td>Clouds</td><td>Stratiform (layers)</td><td>Cumuliform (heaps)</td></tr>
+<tr><td>Turbulence</td><td>Smooth</td><td>Rough</td></tr>
+<tr><td>Visibility</td><td>Poor, hazy</td><td>Good, outside showers</td></tr>
+<tr><td>Precipitation</td><td>Steady</td><td>Showers</td></tr></tbody></table>
+<p>A <b>temperature inversion</b> (warmer air above cooler air) is very stable: smooth air with haze and poor visibility trapped near the ground. Willamette Valley winter mornings often have one.</p>`,
+refs:["ph12"]},
+{id:"3.4",m:3,t:"Density altitude",min:5,obj:"Explain what raises density altitude and what it does to a drone.",
+body:`<p>Density altitude is the altitude the aircraft "feels" based on air density. Three things raise it:</p>
+<ul><li><b>High temperature</b></li><li><b>High elevation</b> (lower pressure)</li><li><b>High humidity</b></li></ul>
+<p>Thin air gives each prop revolution less bite. Motors spin faster and draw more current, so climb rate, payload margin and battery endurance all drop. A hot July afternoon in Madras is a much higher density altitude than a cool morning in Yamhill.</p>
+<div class="key"><b>On the test</b>Hot, high and humid = high density altitude = reduced performance.</div>`,
+refs:["ph11", "sg3b"]},
+{id:"3.5",m:3,t:"Weather hazards",min:10,obj:"Recognize the weather conditions that ground a drone flight.",
+body:`<h4>Wind and turbulence</h4><p>Wind over buildings, tree lines and orchards breaks into eddies on the downwind side. Expect sudden gusts when crossing a windbreak at low altitude.</p>
+<h4>Thunderstorms</h4><table><thead><tr><th>Stage</th><th>What happens</th></tr></thead><tbody>
+<tr><td>Cumulus</td><td>Continuous updrafts as the cloud builds</td></tr>
+<tr><td>Mature</td><td>Rain reaches the surface; strong updrafts and downdrafts</td></tr>
+<tr><td>Dissipating</td><td>Downdrafts dominate and the storm rains out</td></tr></tbody></table>
+<p><b>Microbursts</b> are intense downdrafts, usually under 1 mile across, rarely lasting more than 15 minutes. Gust fronts can reach well ahead of a storm.</p>
+<h4>Fronts</h4><p>Cold fronts move fast with cumuliform clouds, gusts and showers. Warm fronts bring wide stratiform clouds, low ceilings and steady rain.</p>
+<h4>Fog</h4><ul><li><b>Radiation fog:</b> clear, calm nights over land.</li><li><b>Advection fog:</b> moist air blown over a colder surface, common on the coast.</li><li><b>Upslope fog:</b> moist air pushed up terrain.</li><li><b>Steam fog:</b> cold air over warmer water.</li></ul>
+<h4>Frost</h4><p>Even thin frost disrupts airflow over props and reduces lift. Remove it before flight.</p>`,
+refs:["ph12", "sg3b"]},
+// ---------- Module 4 Loading
+{id:"4.1",m:4,t:"Weight and balance",min:5,obj:"Explain how weight and center of gravity affect control.",
+body:`<ul><li>The center of gravity (CG) must stay within the manufacturer's limits.</li>
+<li>A CG too far aft reduces stability and can make recovery from an upset difficult. Too far forward makes the aircraft nose-heavy and slow to respond.</li>
+<li>Payloads must be secured and balanced. Shifting loads change the CG in flight.</li>
+<li>The RPIC checks that the aircraft is within limits and the payload is secure before every flight (§107.49).</li></ul>
+<div class="bds"><b>BDS practice</b>After swapping an L2 or other payload on the M350, run a short hover check before starting the mission.</div>`,
+refs:["ph10", "sg4"]},
+{id:"4.2",m:4,t:"Load factor",min:7,obj:"Read the load factor chart and explain why stall speed rises in a turn.",
+body:`<p>Load factor is the total load on the airframe divided by its weight, measured in G. In a level turn, lift must hold up the aircraft and pull it around the turn, so load factor rises with bank angle.</p>
+<table><thead><tr><th>Bank angle</th><th>Load factor</th></tr></thead><tbody>
+<tr><td>0°</td><td>1.0 G</td></tr><tr><td>30°</td><td>1.15 G</td></tr><tr><td>45°</td><td>1.41 G</td></tr><tr><td>60°</td><td>2.0 G</td></tr><tr><td>80°</td><td>5.76 G</td></tr></tbody></table>
+<p>Stall speed increases with the square root of load factor. At 60° of bank (2 G), stall speed is about 1.41 times the level stall speed.</p>
+<div class="key"><b>On the test</b>Use the load factor chart in the testing supplement: weight × load factor = load the structure must carry.</div>`,
+refs:["ph5", "supp"]},
+{id:"4.3",m:4,t:"Performance",min:5,obj:"Predict how weight, wind and air density change a flight.",
+body:`<ul><li><b>Heavier payload:</b> more thrust to hover, shorter flight time, less climb and wind margin.</li>
+<li><b>Density altitude:</b> heat, elevation and humidity reduce performance (Lesson 3.4).</li>
+<li><b>Wind:</b> headwind legs drain batteries faster. Plan return legs into the wind with reserve.</li>
+<li><b>Manufacturer data</b> sets maximum takeoff weight, wind resistance and temperature limits. Use it, not guesses.</li></ul>`,
+refs:["ph11", "sg8"]},
+// ---------- Module 5 Operations
+{id:"5.1",m:5,t:"Radio communications",min:8,obj:"Understand airport radio calls and speak the phonetic alphabet.",
+body:`<p>Part 107 does not require a radio, but listening to the CTAF near an airport tells you where traffic is. A typical call: "McMinnville traffic, Cessna two three four five Lima, left downwind runway two two, McMinnville."</p>
+<ul><li><b>CTAF:</b> self-announce frequency at nontowered airports or when the tower is closed.</li>
+<li><b>UNICOM:</b> airport advisory station for non-control information.</li>
+<li><b>ATIS:</b> continuous recorded weather and runway information at busier airports.</li></ul>
+<p class="code">A Alfa · B Bravo · C Charlie · D Delta · E Echo · F Foxtrot · G Golf · H Hotel · I India · J Juliett · K Kilo · L Lima · M Mike · N November · O Oscar · P Papa · Q Quebec · R Romeo · S Sierra · T Tango · U Uniform · V Victor · W Whiskey · X X-ray · Y Yankee · Z Zulu · 9 Niner</p>
+<p>Altitudes are spoken in thousands and hundreds: 1,500 is "one thousand five hundred."</p>`,
+refs:["aim42", "sg7"]},
+{id:"5.2",m:5,t:"Airport operations",min:10,obj:"Predict where manned aircraft will be around an airport.",
+body:`${PATTERN_SVG}
+<ul><li><b>Runway numbers</b> are the magnetic heading rounded to the nearest 10°, last zero dropped. Runway 27 points about 270°; the other end is runway 9.</li>
+<li>Aircraft land and take off into the wind.</li>
+<li>Standard patterns use <b>left turns</b> unless the chart or Chart Supplement says right traffic.</li>
+<li>Recommended entry is a <b>45° angle to downwind</b>, abeam midfield. Pattern altitude is usually 1,000 ft AGL.</li>
+<li><b>Signs:</b> red with white letters = mandatory instruction; black with yellow letters = location; yellow with black letters = direction.</li>
+<li><b>Beacons:</b> white and green flashing = lighted civilian land airport. A beacon on in daytime at a controlled airport may mean weather is below VFR minimums.</li>
+<li><b>Markings:</b> an X on a runway means closed. Arrows on a displaced threshold mean you may take off or taxi there but not land.</li></ul>`,
+refs:["aim43", "ph14", "sg11"]},
+{id:"5.3",m:5,t:"Emergency procedures",min:8,obj:"Plan and execute the response to lost link, flyaway, low battery and battery fire.",
+body:`<table><thead><tr><th>Emergency</th><th>Response</th></tr></thead><tbody>
+<tr><td>Lost link</td><td>Aircraft runs its failsafe (usually return to home). Set RTH height above every obstacle at the site before takeoff, and keep watching.</td></tr>
+<tr><td>Flyaway</td><td>Note the last position, direction and battery. If it may enter controlled airspace or near an airport, notify ATC.</td></tr>
+<tr><td>GPS loss</td><td>The aircraft may drift in attitude mode. Fly manually, land as soon as practical.</td></tr>
+<tr><td>Low battery</td><td>Land at the nearest safe spot rather than forcing a return.</td></tr>
+<tr><td>Battery fire</td><td>Clear people away, follow the manufacturer's guidance, use a fire bag or extinguisher, and never fight a fire alone.</td></tr></tbody></table>
+<p>In any emergency the RPIC may deviate from Part 107 as needed (§107.21). Swollen, punctured or damaged lithium batteries are retired, never flown.</p>
+<div class="bds"><b>BDS practice</b>Every BDS vehicle carries a battery fire bag and extinguisher, and every job brief names the emergency landing zone.</div>`,
+refs:["sg5"]},
+{id:"5.4",m:5,t:"Crew resource management",min:6,obj:"Run a crew briefing and use standard callouts.",
+body:`<p>CRM is the effective use of all available resources (people, equipment and information) to fly safely.</p>
+<ul><li><b>Roles:</b> RPIC (final authority), person manipulating the controls, visual observer.</li>
+<li><b>Briefing:</b> mission, airspace, hazards, emergency plan, communication method and who calls a stop.</li>
+<li><b>Callouts:</b> short, standard phrases such as "Traffic, nine o'clock, low, moving left."</li>
+<li><b>Sterile cockpit:</b> no unrelated talk during launch, landing and critical phases.</li>
+<li>Anyone on the crew can call "Stop" for safety, without debate.</li></ul>`,
+refs:["sg6"]},
+{id:"5.5",m:5,t:"Aeronautical decision-making",min:10,obj:"Use ADM models and recognize hazardous attitudes in yourself.",
+body:`<table><thead><tr><th>Model</th><th>Steps</th></tr></thead><tbody>
+<tr><td>PAVE</td><td>Pilot, Aircraft, enVironment, External pressures</td></tr>
+<tr><td>IMSAFE</td><td>Illness, Medication, Stress, Alcohol, Fatigue, Emotion</td></tr>
+<tr><td>DECIDE</td><td>Detect, Estimate, Choose, Identify, Do, Evaluate</td></tr>
+<tr><td>3P</td><td>Perceive, Process, Perform</td></tr></tbody></table>
+<h4>Hazardous attitudes</h4><table><thead><tr><th>Attitude</th><th>Sounds like</th><th>Antidote</th></tr></thead><tbody>
+<tr><td>Anti-authority</td><td>"Don't tell me."</td><td>Follow the rules. They are usually right.</td></tr>
+<tr><td>Impulsivity</td><td>"Do it quickly."</td><td>Not so fast. Think first.</td></tr>
+<tr><td>Invulnerability</td><td>"It won't happen to me."</td><td>It could happen to me.</td></tr>
+<tr><td>Macho</td><td>"I can do it."</td><td>Taking chances is foolish.</td></tr>
+<tr><td>Resignation</td><td>"What's the use?"</td><td>I'm not helpless. I can make a difference.</td></tr></tbody></table>
+<p>Risk assessment pairs <b>likelihood</b> with <b>severity</b>. High-likelihood, high-severity risks must be reduced before flight.</p>
+<div class="bds"><b>BDS practice</b>External pressure is the big one: a grower waiting on data is never a reason to fly in marginal wind.</div>`,
+refs:["ph2", "sg10"]},
+{id:"5.6",m:5,t:"Physiology",min:7,obj:"Recognize physical conditions that degrade pilot performance.",
+body:`<ul><li><b>Dehydration:</b> headache, fatigue, drowsiness. Drink before you are thirsty on hot field days.</li>
+<li><b>Heatstroke:</b> a medical emergency after prolonged heat exposure. Take shade breaks.</li>
+<li><b>Hyperventilation:</b> breathing too fast under stress causes dizziness and tingling. Slow your breathing or talk aloud.</li>
+<li><b>Stress and fatigue:</b> degrade judgment and reaction time. Chronic fatigue needs real rest, not caffeine.</li>
+<li><b>Drugs and alcohol:</b> 8 hours and under 0.04 for alcohol; check every medication's effects.</li>
+<li><b>Vision and scanning:</b> scan in short, regular eye movements, pausing on each 10° sector for about 1 second.</li></ul>`,
+refs:["ph17", "sg9"]},
+{id:"5.7",m:5,t:"Maintenance and preflight",min:7,obj:"Perform a §107.49 preflight and keep maintenance records.",
+body:`<h4>Required before every flight (§107.49)</h4><ul><li>Assess the operating environment: local weather, airspace and flight restrictions, people and property on the surface, and ground hazards.</li>
+<li>Brief everyone involved on conditions, emergency procedures, contingencies, roles and hazards.</li>
+<li>Confirm the control link works between the station and aircraft.</li>
+<li>Confirm enough power to fly the planned operation.</li>
+<li>Make sure anything attached or carried is secure.</li></ul>
+<h4>Maintenance</h4><p>Follow the manufacturer's schedule. If none exists, set your own based on hours and condition, and record inspections, repairs, firmware updates and part replacements.</p>
+<h4>Batteries</h4><p>Use the manufacturer's charger, let packs cool after flight, store them at storage charge, and never charge unattended.</p>`,
+refs:["c49", "sg12"]},
+{id:"5.8",m:5,t:"Night operations",min:6,obj:"Fly safely at night despite the limits of human vision.",
+body:`<ul><li><b>Dark adaptation</b> takes about 30 minutes. Bright screens and white light reset it; use dim or red light.</li>
+<li><b>Off-center viewing:</b> look 5 to 10° to the side of a dim light so the rods can see it.</li>
+<li><b>Autokinesis:</b> a fixed light seems to drift after a few seconds of staring. Keep your eyes moving.</li>
+<li><b>Depth and distance</b> are hard to judge. A light can look closer or farther than it is.</li>
+<li><b>Scout the site in daylight</b> for wires, trees and obstacles before a night flight.</li>
+<li>Anti-collision lights visible 3 statute miles are required (Lesson 1.7).</li></ul>`,
+refs:["ph17", "c29"]}
+];
+
+// [id, module, question, [correct, wrong, wrong], explanation, reference]
+const QB=[
+["r1",1,"What is the maximum groundspeed allowed for a small UA under Part 107?",["87 knots (100 mph)","100 knots (115 mph)","70 knots (81 mph)"],"Groundspeed is capped at 87 knots, which is 100 mph.","14 CFR 107.51(a)"],
+["r2",1,"Away from any structure, what is the maximum altitude for a small UA?",["400 ft AGL","400 ft MSL","500 ft AGL"],"The limit is measured above ground level: 400 ft AGL, unless you are within 400 ft of a structure.","14 CFR 107.51(b)"],
+["r3",1,"You are inspecting a 300-ft cell tower. What is the highest you may fly?",["700 ft AGL, while within a 400-ft radius of the tower","400 ft AGL, the standard limit","400 ft above the tower anywhere in the area"],"Within a 400-ft radius of a structure you may fly up to 400 ft above its top: 300 + 400 = 700 ft AGL.","14 CFR 107.51(b)"],
+["r4",1,"What minimum flight visibility is required, as seen from the control station?",["3 statute miles","1 statute mile","5 statute miles"],"Flight visibility from the control station must be at least 3 statute miles.","14 CFR 107.51(c)"],
+["r5",1,"What is the minimum distance a small UA must stay from clouds?",["500 ft below and 2,000 ft horizontally","1,000 ft below and 2,000 ft horizontally","500 ft below and 1,000 ft horizontally"],"Stay at least 500 ft below clouds and 2,000 ft horizontally from them.","14 CFR 107.51(d)"],
+["r6",1,"A small UA must weigh less than how much at takeoff?",["55 lb, including everything on board","55 lb, not counting the payload","25 lb, including everything on board"],"Small UA means under 55 lb at takeoff, including everything on board or attached.","14 CFR 107.3"],
+["r7",1,"Where must the registration number be displayed?",["On an external surface of the aircraft","Inside the battery compartment","Only on the controller"],"Since 2019 the registration number must be marked on an external surface of the aircraft.","14 CFR 48.200"],
+["r8",1,"How long is a small UA registration valid?",["3 years","2 years","5 years"],"Registration must be renewed every 3 years.","14 CFR 48.105"],
+["r9",1,"Which event must be reported to the FAA within 10 days?",["Damage to property other than the small UA costing more than $500 to repair or replace","Damage to the small UA itself costing more than $500","Any injury, including one needing only first aid"],"Report within 10 days: serious injury, loss of consciousness, or more than $500 of damage to property other than the small UA.","14 CFR 107.9"],
+["r10",1,"How long must you wait after drinking alcohol before acting as a crewmember?",["8 hours, with blood alcohol below 0.04","4 hours, with blood alcohol below 0.08","12 hours, regardless of blood alcohol"],"No alcohol within 8 hours, and blood alcohol concentration must be below 0.04.","14 CFR 107.27 / 91.17"],
+["r11",1,"To keep exercising remote pilot privileges, you must complete recurrent training within the previous:",["24 calendar months","12 calendar months","36 calendar months"],"Aeronautical knowledge recency runs 24 calendar months; recurrent training is free online.","14 CFR 107.65"],
+["r12",1,"What is the minimum age for a Remote Pilot Certificate?",["16","14","18"],"An applicant must be at least 16 years old.","14 CFR 107.61"],
+["r13",1,"For night operations, anti-collision lighting must be visible for at least:",["3 statute miles","1 statute mile","5 statute miles"],"Lighting must be visible for 3 statute miles with a flash rate sufficient to avoid a collision.","14 CFR 107.29"],
+["r14",1,"When may you operate a small UA from a moving land or water vehicle?",["Only over a sparsely populated area","Over any area if a visual observer is present","Never under Part 107"],"Operating from a moving vehicle is allowed only over sparsely populated areas, and never from a moving aircraft.","14 CFR 107.25"],
+["r15",1,"Which of these satisfies visual line of sight?",["Watching the aircraft with your own eyes, wearing glasses or contacts if you normally need them","Watching it through binoculars","Watching the live camera feed"],"VLOS means seeing the aircraft without aids other than corrective lenses.","14 CFR 107.31"],
+["r16",1,"Someone without a remote pilot certificate may manipulate the controls when:",["They are directly supervised by the RPIC, who can immediately take control","They have passed the knowledge test but have no certificate yet","They hold a student pilot certificate"],"An uncertificated person may fly only under direct supervision of the RPIC, who must be able to take over immediately.","14 CFR 107.12"],
+["r17",1,"Which Part 107 rule cannot be waived?",["Carriage of hazardous materials","Operation from a moving vehicle","Operating limitations such as altitude and speed"],"§107.205 lists the waivable sections; §107.36 hazardous materials is not among them.","14 CFR 107.205, 107.36"],
+["r18",1,"Your drone has no Remote ID and no broadcast module. Where may you fly it?",["Only within an FAA-Recognized Identification Area (FRIA)","Anywhere below 400 ft AGL","Anywhere in Class G airspace"],"The three ways to comply: a standard Remote ID drone, a broadcast module, or flying inside a FRIA.","14 CFR Part 89"],
+["r19",1,"A drone qualifies for Category 1 operations over people when it:",["Weighs 0.55 lb or less, including everything on board","Weighs under 2 lb","Flies no higher than 100 ft over people"],"Category 1 is limited to aircraft of 0.55 lb or less, including everything on board at takeoff.","14 CFR 107.110"],
+["r20",1,"When must you present your remote pilot certificate?",["When asked by the FAA, NTSB, TSA, or a law enforcement officer","Only when asked by the FAA","Before every flight, to the landowner"],"Carry the certificate and present it on request to the FAA, NTSB, TSA, or federal, state or local law enforcement.","14 CFR 107.7"],
+
+["a1",2,"Which airspace requires ATC authorization (for example, through LAANC) before you fly?",["Class B, C, D, and the surface area of Class E for an airport","Only Class B and Class C","Class G within 5 miles of any airport"],"Authorization is required in Class B, C and D and in Class E surface areas designated for an airport.","14 CFR 107.41"],
+["a2",2,"Which airspace requires no ATC authorization for Part 107 flights?",["Class G","Class D","Class E surface area"],"Class G is uncontrolled; no authorization is needed.","14 CFR 107.41"],
+["a3",2,"A magenta vignette (shaded band) on a sectional marks Class E airspace with a floor of:",["700 ft AGL","1,200 ft AGL","The surface"],"Inside the magenta vignette, Class E starts at 700 ft AGL; below that is Class G.","Aeronautical Chart User's Guide"],
+["a4",2,"You are below 400 ft AGL, away from airports, where Class E begins at 1,200 ft AGL. What airspace are you in?",["Class G","Class E","Class D"],"Below the Class E floor is Class G.","FAA-H-8083-25 ch. 15"],
+["a5",2,"On a sectional, Class D airspace is shown with:",["A dashed blue line","A solid magenta line","A dashed magenta line"],"Class D is a dashed blue line; the ceiling is in a dashed blue box in hundreds of feet MSL.","Aeronautical Chart User's Guide"],
+["a6",2,"On a sectional, Class C airspace is shown with:",["Solid magenta lines","Solid blue lines","Dashed blue lines"],"Class C uses solid magenta lines.","Aeronautical Chart User's Guide"],
+["a7",2,"On a sectional, Class B airspace is shown with:",["Solid blue lines","Solid magenta lines","Dashed blue lines"],"Class B uses solid blue lines with floor and ceiling labels for each shelf.","Aeronautical Chart User's Guide"],
+["a8",2,"Class E airspace that starts at the surface around an airport is shown with:",["A dashed magenta line","A dashed blue line","A magenta vignette"],"A dashed magenta line marks a Class E surface area, which requires authorization.","Aeronautical Chart User's Guide"],
+["a9",2,"What does LAANC provide?",["Near real-time authorizations at or below UAS Facility Map altitudes","Waivers for night and over-people operations","Weather briefings for remote pilots"],"LAANC issues near real-time airspace authorizations up to the facility map altitude.","FAA LAANC"],
+["a10",2,"A UAS Facility Map grid near an airport shows 200. What does it mean?",["The maximum altitude in ft AGL the FAA may authorize in that grid","The grid's ground elevation in ft MSL","The minimum altitude you must stay above"],"Facility map numbers are the highest altitude, in ft AGL, that can be authorized in that grid without further review.","FAA UAS Facility Maps"],
+["a11",2,"What is required to fly in a restricted area?",["Permission from the controlling or using agency","Nothing, if you stay below 400 ft AGL","A Remote ID broadcast module"],"Restricted areas hold hazards such as artillery; you need permission from the controlling agency.","AIM 3-4-3"],
+["a12",2,"A Military Operations Area (MOA) means:",["Military training may be active; no authorization is needed but use extra caution","Flight is prohibited at all times","A LAANC authorization is required"],"MOAs separate military training from IFR traffic. VFR flight, including drones, is allowed with caution.","AIM 3-4-5"],
+["a13",2,"Around a qualifying stadium event, drone flight is restricted within:",["3 nautical miles and below 3,000 ft AGL","1 nautical mile and below 1,000 ft AGL","5 nautical miles at any altitude"],"The standing stadium TFR covers 3 nm and 3,000 ft AGL, from 1 hour before to 1 hour after the event.","FDC NOTAM 4/3621"],
+["a14",2,"A military training route labeled VR1257 is flown:",["At or below 1,500 ft AGL","Above 1,500 ft AGL","Only at night"],"Four-digit MTRs have no segment above 1,500 ft AGL; three-digit routes have one or more segments above it.","AIM 3-5-2"],
+["a15",2,"An alert area on a sectional indicates:",["A high volume of pilot training or unusual aerial activity","Airspace where flight is prohibited","Live weapons firing"],"Alert areas warn of heavy training or unusual activity; no permission is needed, but stay alert.","AIM 3-4-6"],
+
+["c1",6,"A tower is charted as 1249 with (318) beneath it. What do the numbers mean?",["Top of the tower is 1,249 ft MSL; the tower is 318 ft tall AGL","1,249 ft AGL tall; ground elevation 318 ft MSL","Top is 1,249 ft MSL; ground elevation is 318 ft MSL"],"The upper number is MSL; the number in parentheses is the height above ground.","Aeronautical Chart User's Guide"],
+["c2",6,"In an airport data block, a star after the tower frequency, as in CT – 118.3 ★, means:",["The tower operates part time","The airport has a rotating beacon","The frequency is the CTAF"],"A star after the tower frequency means the tower is part time; check the Chart Supplement for hours.","Aeronautical Chart User's Guide"],
+["c3",6,"A letter C inside a solid circle after a frequency marks:",["The Common Traffic Advisory Frequency (CTAF)","The Class C approach frequency","Continuous ATIS"],"The circled C identifies the CTAF.","Aeronautical Chart User's Guide"],
+["c4",6,"An airport data block reads 197 L 51 122.95. What does 51 mean?",["The longest runway is 5,100 ft","Field elevation is 51 ft MSL","Pattern altitude is 5,100 ft"],"Runway length is shown in hundreds of feet: 51 = 5,100 ft. 197 is the field elevation in ft MSL.","Aeronautical Chart User's Guide"],
+["c5",6,"A small star above an airport symbol indicates:",["A rotating beacon that operates sunset to sunrise","A part-time control tower","A heliport"],"The star on the airport symbol marks a rotating beacon.","Aeronautical Chart User's Guide"],
+["c6",6,"A number in a dashed blue box near a Class D airport, such as [32], means:",["The Class D ceiling is 3,200 ft MSL","The Class D ceiling is 3,200 ft AGL","The airport elevation is 3,200 ft MSL"],"The boxed number is the Class D ceiling in hundreds of feet MSL.","Aeronautical Chart User's Guide"],
+["c7",6,"A Class C sector is labeled 40 over 15. What does that describe?",["Ceiling 4,000 ft MSL, floor 1,500 ft MSL","Ceiling 4,000 ft AGL, floor 1,500 ft AGL","Radius 40 nm, ceiling 1,500 ft"],"Class C and B labels give ceiling over floor in hundreds of feet MSL.","Aeronautical Chart User's Guide"],
+["c8",6,"A large 2 with a small 8 in a chart quadrant is the Maximum Elevation Figure. It means:",["2,800 ft MSL, clearing the highest terrain and obstacles in that quadrant","2,800 ft AGL","The highest obstacle is 280 ft tall"],"MEFs are shown in thousands (large) and hundreds (small) of feet MSL.","Aeronautical Chart User's Guide"],
+["c9",6,"One minute of latitude on a sectional equals about:",["1 nautical mile","1 statute mile","10 nautical miles"],"Each minute of latitude is about 1 nautical mile, handy for measuring distances along a meridian.","FAA-H-8083-25 ch. 16"],
+["c10",6,"Sectional charts are drawn at a scale of:",["1:500,000","1:250,000","1:1,000,000"],"Sectionals are 1:500,000; terminal area charts are 1:250,000.","Aeronautical Chart User's Guide"],
+["c11",6,"An obstruction symbol with small rays around its tip means the obstruction is:",["Lighted","A power line","Under construction"],"The rays mark a lighted obstruction.","Aeronautical Chart User's Guide"],
+["c12",6,"The control tower at a nearby airport is closed for the night. What frequency do you monitor?",["The CTAF shown in the airport data block","The ATIS frequency","121.5, the emergency frequency"],"When a part-time tower closes, pilots self-announce on the CTAF (often the tower frequency).","AIM 4-1-9"],
+
+["w1",3,"Decode the wind in this METAR: KMMV 181753Z 18012G20KT",["From 180° true at 12 knots, gusting to 20 knots","From 180° magnetic at 12 knots, gusting to 20 knots","Toward 180° at 12 mph, gusting to 20 mph"],"METAR wind is the direction it blows from, in degrees true, then speed and gusts in knots.","AC 00-45"],
+["w2",3,"METAR wind directions are referenced to:",["True north","Magnetic north","Grid north"],"Written reports (METAR, TAF) use true north; ATIS and tower wind reports use magnetic.","AC 00-45"],
+["w3",3,"In a METAR, BKN008 means:",["A broken layer at 800 ft AGL, which is a ceiling","Broken clouds at 8,000 ft AGL","A broken layer at 800 ft MSL"],"Cloud heights are in hundreds of feet AGL; broken and overcast layers are ceilings.","AC 00-45"],
+["w4",3,"Which layer counts as a ceiling?",["The lowest broken or overcast layer, or vertical visibility into an obscuration","The lowest scattered layer","Any layer below 3,000 ft"],"A ceiling is the lowest broken or overcast layer, or vertical visibility.","14 CFR 1.1"],
+["w5",3,"A TAF valid period of 1818/1918 covers:",["The 18th at 1800Z to the 19th at 1800Z","1818 to 1918 local time on the same day","18 hours starting at 1918Z"],"Each half is day and hour in UTC: 18th at 18Z through the 19th at 18Z.","AC 00-45"],
+["w6",3,"Which conditions produce the highest density altitude?",["Hot, humid air at a high-elevation site","Cold, dry air at sea level","Cool, dry air at a high-elevation site"],"Heat, humidity and elevation all thin the air and raise density altitude.","FAA-H-8083-25 ch. 11"],
+["w7",3,"How does high density altitude affect a small UA?",["Props and motors work harder, cutting climb performance and battery endurance","It gives more lift and longer flights","It has no effect on battery-powered aircraft"],"Thin air means less lift per prop revolution, so motors draw more power.","FAA-H-8083-25 ch. 11"],
+["w8",3,"Which thunderstorm stage begins when rain starts falling at the surface?",["Mature","Cumulus","Dissipating"],"Precipitation reaching the surface marks the mature stage, with strong updrafts and downdrafts.","FAA-H-8083-28"],
+["w9",3,"The cumulus stage of a thunderstorm is marked by:",["Continuous updrafts","Strong downdrafts only","Rain reaching the surface"],"In the cumulus stage the cloud builds on continuous updrafts.","FAA-H-8083-28"],
+["w10",3,"How long does a typical microburst last?",["Rarely longer than 15 minutes","About 1 hour","Several hours"],"Microbursts are short and intense, rarely lasting more than 15 minutes.","AIM 7-1-24"],
+["w11",3,"Stable air is typically associated with:",["Stratiform clouds, smooth air and poor visibility","Cumuliform clouds and turbulence","Showers and good visibility"],"Stable air resists vertical movement: layered clouds, smooth air, haze.","FAA-H-8083-25 ch. 12"],
+["w12",3,"Advection fog forms when:",["Moist air moves over a colder surface","The ground cools on a clear, calm night","Warm rain falls through cold air"],"Advection fog needs wind to move moist air over a cold surface; it is common along coasts.","FAA-H-8083-25 ch. 12"],
+["w13",3,"Why must frost be removed before flight?",["It disrupts smooth airflow over props and wings, reducing lift","It adds too much weight","It blocks the GPS antenna"],"Even thin frost roughens lifting surfaces and can sharply reduce lift.","FAA-H-8083-25 ch. 12"],
+["w14",3,"The standard temperature lapse rate is about:",["3.5°F per 1,000 ft","1°F per 1,000 ft","10°F per 1,000 ft"],"Standard atmosphere temperature drops about 3.5°F for each 1,000 ft of altitude.","FAA-H-8083-25 ch. 12"],
+["w15",3,"Flying downwind of a large building on a windy day, expect:",["Turbulent eddies and sudden wind changes","Smooth, steady wind","Calm air with no effect"],"Wind flowing over and around structures breaks into eddies on the downwind side.","FAA-H-8083-25 ch. 12"],
+
+["l1",4,"In a level, coordinated 60° banked turn, the load factor is:",["2 G","1.5 G","3 G"],"From the load factor chart, a 60° bank doubles the load on the airframe.","FAA-CT-8080-2 Figure 2"],
+["l2",4,"When load factor increases, stall speed:",["Increases","Decreases","Stays the same"],"Stall speed rises with the square root of load factor.","FAA-H-8083-25 ch. 5"],
+["l3",4,"A center of gravity too far aft makes the aircraft:",["Less stable and harder to recover from an upset","More stable and slower to respond","Unaffected if the motors have enough power"],"An aft CG reduces stability and can make recovery difficult.","FAA-H-8083-1"],
+["l4",4,"Adding a heavier payload to a multirotor usually:",["Shortens flight time and reduces climb performance","Increases flight time","Has no effect on performance"],"More weight means more thrust to hover, so batteries drain faster.","FAA-H-8083-1"],
+["l5",4,"Who must make sure the aircraft is loaded within limits and the payload is secure?",["The remote pilot in command","The visual observer","The manufacturer"],"Preflight checks, including attached and carried payloads, are the RPIC's job.","14 CFR 107.49"],
+["l6",4,"In a level 30° banked turn, the load factor is about:",["1.15 G","1.5 G","2 G"],"The load factor chart shows about 1.154 G at 30° of bank.","FAA-CT-8080-2 Figure 2"],
+["l7",4,"Why does load factor rise in a turn?",["Lift must support the weight plus the outward force of the turn","The aircraft gets heavier as the battery drains","Air density increases in a turn"],"In a turn, total lift must balance weight and centrifugal force, raising load factor.","FAA-H-8083-25 ch. 5"],
+["l8",4,"Performance limits such as maximum takeoff weight and wind limits should come from:",["The manufacturer's specifications","General aviation norms","Your best estimate from past flights"],"Use the manufacturer's data for weight, balance and performance limits.","FAA-H-8083-1"],
+
+["o1",5,"How do you say the airport identifier MMV phonetically?",["Mike Mike Victor","Mary Mary Victor","Mike Mike Viking"],"ICAO phonetic alphabet: M = Mike, V = Victor.","AIM 4-2-7"],
+["o2",5,"Unless published otherwise, traffic pattern turns at a nontowered airport are made to the:",["Left","Right","Either side"],"Standard patterns use left turns unless markings or the Chart Supplement show right traffic.","AIM 4-3-3"],
+["o3",5,"Runway 27 is aligned closest to:",["270° magnetic","027° magnetic","270° true"],"Runway numbers are magnetic headings rounded to the nearest 10°, last zero dropped.","AIM 2-3-3"],
+["o4",5,"The pattern leg flown parallel to the runway, opposite the landing direction, is the:",["Downwind leg","Base leg","Crosswind leg"],"Downwind runs parallel to the runway in the opposite direction of landing.","AIM 4-3-2"],
+["o5",5,"The recommended entry to the pattern at a nontowered airport is:",["A 45° angle to the downwind leg, abeam the runway midpoint","Straight in on a 5-mile final","Directly over the runway at pattern altitude"],"Enter on a 45° to downwind, abeam midfield.","AIM 4-3-3"],
+["o6",5,"ATIS is:",["A continuous recorded broadcast of non-control information like weather and active runway","The frequency for talking to the control tower","A system for authorizing drone flights"],"ATIS repeats airport weather and runway information on a loop.","AIM 4-1-13"],
+["o7",5,"Before flight, what should you confirm about lost-link behavior?",["The return-to-home altitude and action clear the obstacles at this site","That the aircraft will hover until the battery is empty","Nothing; lost link is always handled safely"],"Set and verify RTH height and failsafe action for the obstacles at each site.","14 CFR 107.49; FAA-G-8082-22"],
+["o8",5,"A drone battery is swollen after a flight. What should you do?",["Stop using it and dispose of it following lithium battery guidance","Use it only for short flights","Charge it fully to restore its shape"],"Swelling signals internal damage and fire risk; retire the battery.","FAA-G-8082-22"],
+["o9",5,"During an in-flight emergency, the remote pilot in command may:",["Deviate from Part 107 rules as needed to meet the emergency","Never deviate from any rule","Deviate only with ATC approval in advance"],"The RPIC may deviate as needed and must send a report to the FAA if asked.","14 CFR 107.21"],
+["o10",5,"Who has final authority and responsibility for a small UAS operation?",["The remote pilot in command","The visual observer","The landowner"],"The RPIC is directly responsible for and is the final authority on the operation.","14 CFR 107.19"],
+["o11",5,"The thought “Don't tell me what to do” is which hazardous attitude?",["Anti-authority","Macho","Impulsivity"],"Anti-authority. Antidote: Follow the rules. They are usually right.","FAA-H-8083-2"],
+["o12",5,"“Do something quickly!” reflects impulsivity. Its antidote is:",["Not so fast. Think first.","Follow the rules. They are usually right.","It could happen to me."],"Impulsivity is countered by slowing down and thinking first.","FAA-H-8083-2"],
+["o13",5,"“It won't happen to me” is which hazardous attitude?",["Invulnerability","Resignation","Anti-authority"],"Invulnerability. Antidote: It could happen to me.","FAA-H-8083-2"],
+["o14",5,"“I can do it. Watch this.” is which hazardous attitude?",["Macho","Impulsivity","Invulnerability"],"Macho. Antidote: Taking chances is foolish.","FAA-H-8083-2"],
+["o15",5,"“What's the use?” is resignation. Its antidote is:",["I'm not helpless. I can make a difference.","Taking chances is foolish.","Not so fast. Think first."],"Resignation is countered by recognizing you can affect the outcome.","FAA-H-8083-2"],
+["o16",5,"The IMSAFE checklist is used to assess:",["Your own fitness to fly","The aircraft's airworthiness","Weather conditions"],"Illness, Medication, Stress, Alcohol, Fatigue, Emotion: a personal fitness check.","FAA-H-8083-2"],
+["o17",5,"In the PAVE risk checklist, the E stands for:",["External pressures","Equipment","Emergencies"],"Pilot, Aircraft, enVironment, External pressures.","FAA-H-8083-2"],
+["o18",5,"The first step of the DECIDE model is:",["Detect that a change has occurred","Decide on the best action","Do the necessary action"],"Detect, Estimate, Choose, Identify, Do, Evaluate.","FAA-H-8083-2"],
+["o19",5,"Crew resource management (CRM) means:",["Using all available resources (people, equipment, information) to fly safely","Handing all decisions to the visual observer","Managing battery and equipment inventory"],"CRM is effective use of every resource available to the crew.","FAA-G-8082-22"],
+["o20",5,"Tingling fingers and dizziness after a stressful moment suggest hyperventilation. The fix is to:",["Slow your breathing, for example by talking aloud","Breathe faster to get more oxygen","Drink water immediately"],"Hyperventilation is too much breathing; slow the rate to restore CO2.","FAA-H-8083-25 ch. 17"],
+["o21",5,"Early signs of dehydration include:",["Headache, fatigue and drowsiness","Improved focus","Tingling in the fingers only"],"Drink water before you feel thirsty, especially on hot field days.","FAA-H-8083-25 ch. 17"],
+["o22",5,"Which is an effect of fatigue on a remote pilot?",["Degraded judgment and slower reactions","Sharper focus over time","No effect on short flights"],"Fatigue degrades attention, judgment and reaction time.","FAA-H-8083-25 ch. 17"],
+["o23",5,"The most effective way to scan for aircraft during the day is:",["Short, regular eye movements, pausing on each 10° sector for about 1 second","One continuous sweep across the horizon","Staring at the center of the sky"],"Eyes only detect motion and detail when they stop briefly on each sector.","AIM 8-1-6"],
+["o24",5,"Full dark adaptation of your eyes takes about:",["30 minutes","5 minutes","2 hours"],"The rods take about 30 minutes in darkness to reach full sensitivity.","FAA-H-8083-25 ch. 17"],
+["o25",5,"At night, the best way to see a dim light is to:",["Look slightly off-center from it","Stare directly at it","Close one eye"],"Off-center viewing uses the rods, which see better in low light.","FAA-H-8083-25 ch. 17"],
+["o26",5,"Staring at a single light against a dark background can make it seem to move. This illusion is:",["Autokinesis","Flicker vertigo","False horizon"],"Autokinesis: a fixed light appears to drift after a few seconds of staring.","FAA-H-8083-25 ch. 17"],
+["o27",5,"Before every flight, Part 107 requires the remote pilot in command to:",["Brief everyone involved on conditions, emergency procedures and their roles","File a flight plan with Flight Service","Phone the nearest airport"],"The preflight briefing of all participants is required.","14 CFR 107.49"],
+["o28",5,"If the manufacturer provides no maintenance schedule, the remote pilot should:",["Develop a schedule and keep maintenance and repair records","Fly until something breaks","Send the aircraft to an FAA repair station each year"],"Without manufacturer guidance, set your own schedule and document it.","FAA-G-8082-22"],
+["o29",5,"A safe lithium battery practice is to:",["Charge with the manufacturer's charger and never leave it unattended","Store batteries fully charged for months","Charge right after flight while still hot"],"Use the right charger, let packs cool, store at storage charge, and supervise charging.","FAA-G-8082-22"],
+["o30",5,"A manned aircraft approaches your work area. Who has the right of way?",["The manned aircraft; the small UA must yield to all aircraft","The small UA, since it was there first","Whichever is lower"],"Small UA must give way to all aircraft and other airspace users.","14 CFR 107.37"],
+["r21", 1, "You move to a new mailing address. How long do you have to notify the FAA to keep exercising your remote pilot privileges?", ["30 days", "60 days", "10 days"], "You may not exercise the privileges of your certificate unless you notify the FAA of a new permanent mailing address within 30 days of moving.", "14 CFR 107.77"],
+["r22", 1, "When the FAA asks, a remote pilot must make available the small UAS and:", ["Any document, record or report required by Part 107", "A copy of the manufacturer's purchase receipt", "The last 90 days of flight logs, whether required or not"], "On FAA request you must allow inspection or testing of the small UAS, the remote pilot and the crew, and provide any document, record or report required to be kept under the regulations.", "14 CFR 107.7(b)"],
+["r23", 1, "Dropping an object from a small UA is allowed when:", ["It does not create an undue hazard to persons or property", "You have a visual observer", "The object weighs less than 5 lb"], "Part 107 allows dropping objects as long as it does not create an undue hazard to persons or property.", "14 CFR 107.23(b)"],
+["r24", 1, "Your drone weighs 0.5 lb and you will fly it for a paid job under Part 107. Does it need to be registered?", ["Yes, every drone flown under Part 107 must be registered", "No, drones under 0.55 lb never need registration", "Only if it carries a camera"], "The 0.55 lb exception applies only to recreational flyers. Every drone flown under Part 107 must be registered, whatever it weighs.", "FAA drone registration; 14 CFR Part 48"],
+["r25", 1, "What does registering a drone for Part 107 cost, and for how long?", ["$5 for 3 years", "$5 for 1 year", "Free for 2 years"], "FAA registration costs $5 per drone and is valid for 3 years.", "FAA DroneZone registration"],
+["r26", 1, "Before flight, who must make sure every crew member knows the operating conditions, emergency procedures, contingencies, roles and hazards?", ["The remote pilot in command", "The visual observer", "The person manipulating the controls"], "The RPIC must brief all persons involved in the operation before flight.", "14 CFR 107.49(a)"],
+["r27", 1, "A drone eligible for Category 2 operations over people must, among other requirements:", ["Not cause injury equal to or greater than 11 ft-lb of kinetic energy on impact", "Weigh less than 0.55 lb", "Fly below 50 ft AGL"], "Category 2 drones must stay under the 11 ft-lb injury threshold, have no exposed rotating parts that could lacerate skin, have no safety defects, and be covered by an FAA-accepted declaration of compliance.", "14 CFR 107.120"],
+["r28", 1, "A drone that meets Remote ID with a broadcast module may only be flown:", ["Within visual line of sight of the person operating it", "Inside an FAA-Recognized Identification Area", "Below 200 ft AGL"], "Broadcast-module operations must stay within visual line of sight of the operator.", "14 CFR 89.115(b)"],
+["r29", 1, "Before flying at night under Part 107, the remote pilot must have:", ["Passed the current initial knowledge test or completed the current recurrent training", "Logged 10 hours of daytime flight", "Received a night waiver from the FAA"], "Night flight is allowed without a waiver if the pilot completed the initial test or recurrent training updated in April 2021, and the drone has anti-collision lighting.", "14 CFR 107.29(a)"],
+["r30", 1, "Without a waiver, how many small UA may one person operate or act as RPIC for at the same time?", ["One", "Two, if both are in sight", "Up to three with a visual observer"], "A person may not operate or act as RPIC of more than one unmanned aircraft at the same time without a waiver.", "14 CFR 107.35"],
+["r31", 1, "A visual observer must be able to:", ["See the drone and communicate effectively with the remote pilot", "Hold a remote pilot certificate", "Take over the controls in an emergency"], "The VO, the RPIC and the person manipulating the controls must keep effective communication, and the VO must be able to see the aircraft.", "14 CFR 107.33"],
+["r32", 1, "You know you have a condition that would interfere with safe operation of the drone. You must:", ["Not act as a crewmember", "Fly only with a visual observer", "Notify the FAA within 10 days and then fly"], "No person may manipulate the controls or act as RPIC or VO if they know or have reason to know of a condition that would interfere with safe operation.", "14 CFR 107.17"],
+["r33", 1, "To fly beyond visual line of sight, you need a waiver of:", ["14 CFR 107.31, visual line of sight", "14 CFR 107.51, operating limitations", "14 CFR 107.39, operations over people"], "Visual line of sight is in 107.31, which is one of the waivable sections.", "14 CFR 107.31; 107.205"],
+["a16", 2, "Class D airspace normally extends from the surface up to about:", ["2,500 ft above the airport elevation", "1,200 ft AGL", "4,000 ft above the airport elevation"], "Class D generally reaches 2,500 ft above the airport elevation. The charted ceiling is shown in MSL in a dashed box.", "FAA Pilot's Handbook of Aeronautical Knowledge, Ch. 15"],
+["a17", 2, "The surface area (inner core) of Class C airspace generally has a radius of:", ["5 nautical miles", "10 nautical miles", "30 nautical miles"], "Class C usually has a 5 NM core from the surface and a 10 NM shelf from about 1,200 ft up to 4,000 ft above the airport.", "FAA Pilot's Handbook of Aeronautical Knowledge, Ch. 15"],
+["a18", 2, "Class A airspace begins at:", ["18,000 ft MSL", "14,500 ft MSL", "10,000 ft MSL"], "Class A runs from 18,000 ft MSL up to FL600. It is far above any Part 107 operation.", "FAA Pilot's Handbook of Aeronautical Knowledge, Ch. 15"],
+["a19", 2, "How are temporary flight restrictions (TFRs) published?", ["Through NOTAMs", "On the printed sectional chart", "Only through LAANC"], "TFRs are issued as NOTAMs. Check them before every flight, for example at tfr.faa.gov.", "14 CFR 107.47; 14 CFR 91.137"],
+["a20", 2, "Can a LAANC authorization let you fly inside a prohibited area such as P-56?", ["No, flight there is prohibited", "Yes, if the facility map shows 0", "Yes, below 100 ft AGL"], "Prohibited areas are closed to aircraft for security or national welfare reasons. LAANC does not cover them.", "FAA Pilot's Handbook of Aeronautical Knowledge, Ch. 15"],
+["a21", 2, "Launching or landing a drone within most National Park Service lands is:", ["Prohibited unless the park allows it", "Allowed under Part 107 without restriction", "Allowed if you stay below 200 ft"], "The National Park Service bans launching, landing or operating drones on lands it manages unless a specific exception applies.", "NPS Policy Memorandum 14-05; 36 CFR 1.5"],
+["a22", 2, "How far ahead of a flight can you request a LAANC authorization?", ["Up to 90 days", "Up to 7 days", "Up to 1 year"], "LAANC accepts requests up to 90 days in advance, and near real time for many grids.", "FAA LAANC"],
+["a23", 2, "A UAS Facility Map grid shows 0. What does that mean?", ["Automatic LAANC approval is not available there; request authorization through DroneZone", "Flight is allowed up to 400 ft", "No authorization is needed"], "A 0 grid means no altitude is pre-approved for automatic authorization. You must apply for further coordination through FAADroneZone.", "FAA UAS Facility Maps"],
+["a24", 2, "The thin magenta circle around a Class B primary airport on a sectional is the:", ["Mode C veil, 30 nautical miles", "Class C outer area, 20 nautical miles", "Class D boundary, 10 nautical miles"], "The Mode C veil marks 30 NM from the Class B primary airport, where manned aircraft need an altitude-reporting transponder.", "FAA Aeronautical Chart User's Guide"],
+["a25", 2, "Under 14 CFR 107.43, a remote pilot may not:", ["Interfere with operations and traffic patterns at any airport, heliport or seaplane base", "Fly within 5 miles of any airport", "Fly over an airport's parking lot"], "107.43 prohibits interfering with operations and traffic patterns at airports, heliports and seaplane bases.", "14 CFR 107.43"],
+["a26", 2, "A warning area is airspace that:", ["Lies 3 NM or more off the U.S. coast and may contain hazardous activity", "Surrounds the White House", "Marks a high volume of student pilot training"], "Warning areas extend from 3 NM outward from the coast and contain activity that may be hazardous to aircraft.", "FAA Pilot's Handbook of Aeronautical Knowledge, Ch. 15"],
+["c13", 6, "On a sectional, the floors and ceilings of Class B, C and D airspace are shown in:", ["Feet MSL", "Feet AGL", "Hundreds of feet AGL"], "Charted airspace altitudes are MSL. Subtract the ground elevation to find how high that is above the ground.", "FAA Aeronautical Chart User's Guide"],
+["c14", 6, "Next to a Class D airport, a dashed blue box reads -25. This means:", ["Class D extends up to but not including 2,500 ft MSL", "Class D extends up to 250 ft AGL", "The airport elevation is 2,500 ft"], "A minus sign before the number means up to but not including that altitude, in hundreds of feet MSL.", "FAA Aeronautical Chart User's Guide"],
+["c15", 6, "An airport symbol printed in magenta on a sectional indicates an airport that:", ["Has no operating control tower", "Is military", "Is private"], "Blue airport symbols have a control tower. Magenta symbols do not.", "FAA Aeronautical Chart User's Guide"],
+["c16", 6, "One nautical mile is about:", ["1.15 statute miles", "0.87 statute miles", "1.5 statute miles"], "1 NM is about 1.15 SM. Visibility in Part 107 is in statute miles; chart distances use nautical miles.", "FAA Pilot's Handbook of Aeronautical Knowledge"],
+["c17", 6, "An airport data block shows RP 23. What does it mean?", ["Right traffic pattern for runway 23", "Runway 23 has precision lighting", "Restricted area within 23 NM"], "RP followed by runway numbers means those runways use right-hand traffic.", "FAA Aeronautical Chart User's Guide"],
+["c18", 6, "A chart symbol showing two obstruction towers side by side marks:", ["A group obstruction", "A single lighted tower", "A wind turbine farm boundary only"], "A group obstruction symbol shows two or more obstructions close together. The height given is for the highest.", "FAA Aeronautical Chart User's Guide"],
+["c19", 6, "Lines of longitude measure position east or west of the:", ["Prime Meridian", "Equator", "Nearest VOR"], "Longitude is measured east or west from the Prime Meridian; latitude north or south from the Equator.", "FAA Pilot's Handbook of Aeronautical Knowledge, Ch. 16"],
+["w16", 3, "A METAR reports OVC015. The ceiling is:", ["1,500 ft AGL", "150 ft AGL", "15,000 ft AGL"], "Cloud heights in METARs are in hundreds of feet above ground. Overcast at 015 is a 1,500 ft ceiling.", "Aviation Weather Handbook (FAA-H-8083-28)"],
+["w17", 3, "In a METAR, 10SM means:", ["Visibility is 10 statute miles", "Wind is 10 knots", "Sky clear below 10,000 ft"], "Visibility is reported in statute miles.", "Aviation Weather Handbook (FAA-H-8083-28)"],
+["w18", 3, "A METAR reports 12/11. What should you expect?", ["Fog or low clouds are likely because temperature and dew point are close", "Strong winds", "Clear skies and unlimited visibility"], "When the temperature-dew point spread is small, the air is close to saturation and fog or low clouds can form.", "Aviation Weather Handbook (FAA-H-8083-28)"],
+["w19", 3, "In a METAR, A2992 means:", ["Altimeter setting 29.92 inches of mercury", "Visibility 29.92 miles", "The station is at 2,992 ft elevation"], "The A group is the altimeter setting in inches of mercury.", "Aviation Weather Handbook (FAA-H-8083-28)"],
+["w20", 3, "In a METAR, -RA means:", ["Light rain", "Heavy rain", "Rain ended"], "A minus sign means light intensity; RA is rain.", "Aviation Weather Handbook (FAA-H-8083-28)"],
+["w21", 3, "Times in METARs and TAFs are given in:", ["UTC (Zulu time)", "Local standard time", "The pilot's time zone"], "All times in these reports are UTC. Pacific Standard Time is 8 hours behind UTC.", "Aviation Weather Handbook (FAA-H-8083-28)"],
+["w22", 3, "A TAF usually covers a period of:", ["24 or 30 hours", "6 hours", "72 hours"], "TAFs are normally valid for 24 hours, and some major airports issue 30-hour forecasts.", "Aviation Weather Handbook (FAA-H-8083-28)"],
+["w23", 3, "A temperature inversion near the ground usually brings:", ["Smooth air with poor visibility", "Strong thunderstorms", "Very good visibility"], "An inversion traps haze, smoke and fog near the surface, so expect smooth air but restricted visibility.", "FAA Pilot's Handbook of Aeronautical Knowledge, Ch. 12"],
+["w24", 3, "Radiation fog is most likely on:", ["Clear, calm nights with high humidity", "Windy afternoons", "Days with a cold front passing"], "The ground cools on clear, calm nights and chills the air above it to its dew point.", "FAA Pilot's Handbook of Aeronautical Knowledge, Ch. 12"],
+["w25", 3, "Which three conditions are needed for a thunderstorm to form?", ["Moisture, unstable air and a lifting force", "Moisture, stable air and high pressure", "Cold air, low humidity and wind"], "Thunderstorms need sufficient water vapor, an unstable lapse rate and an initial lifting action.", "FAA Pilot's Handbook of Aeronautical Knowledge, Ch. 12"],
+["w26", 3, "Wind shear can occur:", ["At any altitude, often near thunderstorms, fronts and inversions", "Only above 10,000 ft", "Only over water"], "Wind shear is a sudden change in wind speed or direction and can happen at any altitude.", "FAA Pilot's Handbook of Aeronautical Knowledge, Ch. 12"],
+["l9", 4, "With the same battery, adding weight to a drone usually makes flight time:", ["Shorter", "Longer", "Unchanged"], "More weight needs more thrust, which draws more current and drains the battery faster.", "Manufacturer performance data"],
+["l10", 4, "Cold weather affects lithium drone batteries by:", ["Reducing available capacity and voltage, shortening flight time", "Increasing capacity", "Having no effect"], "Cold batteries deliver less power. Keep them warm before flight and watch voltage closely.", "Manufacturer battery guidance"],
+["l11", 4, "In a level, coordinated 45° banked turn, the load factor is about:", ["1.41 G", "2 G", "1 G"], "Load factor in a level turn is 1 divided by the cosine of the bank angle: about 1.41 G at 45°.", "FAA Pilot's Handbook of Aeronautical Knowledge, Ch. 5"],
+["l12", 4, "Flying above the manufacturer's maximum takeoff weight can cause:", ["Reduced climb and control margins and extra structural stress", "Better stability in wind", "Longer battery life"], "Overweight aircraft have less performance and control margin and can be structurally overstressed.", "FAA Pilot's Handbook of Aeronautical Knowledge, Ch. 10"],
+["l13", 4, "The drone will fly home into a strong headwind. You should:", ["Plan extra battery reserve for the slower return", "Plan less reserve because headwind adds lift", "Ignore wind for multirotors"], "A headwind lowers groundspeed and stretches the return leg, so it uses more battery.", "FAA Remote Pilot Study Guide"],
+["o31", 5, "In the phonetic alphabet, B is:", ["Bravo", "Baker", "Beta"], "The ICAO phonetic alphabet uses Bravo for B.", "Aeronautical Information Manual 4-2-7"],
+["o32", 5, "CTAF stands for:", ["Common Traffic Advisory Frequency", "Central Tower Approach Frequency", "Controlled Terminal Area Frequency"], "CTAF is the frequency pilots use to announce positions at airports without an operating tower.", "Aeronautical Information Manual 4-1-9"],
+["o33", 5, "UNICOM is:", ["A nongovernment air/ground radio station", "The FAA's flight service station", "A tower frequency for military airports"], "UNICOM stations can give airport information at airports without a tower, and the frequency may also serve as the CTAF.", "Aeronautical Information Manual 4-1-11"],
+["o34", 5, "A rotating beacon flashing alternating white and green marks:", ["A lighted civilian land airport", "A military airport", "A heliport"], "White and green is a civil land airport. Military airports show two quick white flashes between green flashes.", "Aeronautical Information Manual 2-1-9"],
+["o35", 5, "At a nontowered airport, the segmented circle with traffic pattern indicators shows:", ["The direction of turns in the traffic pattern", "Where drones may operate", "The wind speed"], "Traffic pattern indicators on the segmented circle show which way the pattern turns for each runway.", "Aeronautical Information Manual 4-3-4"],
+["o36", 5, "The recommended traffic pattern altitude for most small manned aircraft is about:", ["1,000 ft AGL", "400 ft AGL", "2,500 ft AGL"], "The AIM recommends 1,000 ft above airport elevation for most propeller aircraft.", "Aeronautical Information Manual 4-3-3"],
+["o37", 5, "Your drone loses GPS and switches to an attitude (ATTI) mode. What happens?", ["It no longer holds position and drifts with the wind", "It returns home automatically", "It lands immediately"], "Without satellite positioning the aircraft keeps altitude but drifts. Fly it manually and land as soon as practical.", "Manufacturer user manual"],
+["o38", 5, "After a firmware update, good practice is to:", ["Check settings and test fly in a safe area before a job", "Fly the job as planned without checking", "Skip the preflight inspection"], "Updates can change settings such as return-to-home altitude. Confirm them and test before real work.", "14 CFR 107.49; manufacturer guidance"],
+["o39", 5, "The antidote to the macho attitude is:", ["Taking chances is foolish", "Follow the rules", "Not so fast, think first"], "Macho (“I can do it”) is countered by reminding yourself that taking chances is foolish.", "FAA Pilot's Handbook of Aeronautical Knowledge, Ch. 2"],
+["o40", 5, "The antidote to the anti-authority attitude is:", ["Follow the rules; they are usually right", "It could happen to me", "I'm not helpless"], "Anti-authority (“Don't tell me”) is countered by following the rules.", "FAA Pilot's Handbook of Aeronautical Knowledge, Ch. 2"],
+["o41", 5, "In the IMSAFE checklist, the S stands for:", ["Stress", "Sleep", "Speed"], "IMSAFE: Illness, Medication, Stress, Alcohol, Fatigue, Emotion (some versions use Eating).", "FAA Pilot's Handbook of Aeronautical Knowledge, Ch. 2"],
+["o42", 5, "In the PAVE checklist, the V stands for:", ["Vehicle (the aircraft)", "Visibility", "Velocity"], "PAVE: Pilot, Aircraft (vehicle), enVironment, External pressures.", "FAA Pilot's Handbook of Aeronautical Knowledge, Ch. 2"],
+["o43", 5, "A pilot dealing with ongoing chronic stress should:", ["Not fly until the stress is under control", "Fly short missions only", "Fly with music to relax"], "Chronic stress can drop performance to unacceptable levels. Ground yourself until it is managed.", "FAA Pilot's Handbook of Aeronautical Knowledge, Ch. 17"],
+["o44", 5, "An over-the-counter allergy medicine says it may cause drowsiness. You should:", ["Not fly while it could impair you", "Fly only short flights", "Fly with a visual observer"], "Do not act as a crewmember if a medication could interfere with safe operation.", "14 CFR 107.17; 107.27"],
+["o45", 5, "Most midair collisions and near misses happen:", ["In good daytime weather near airports", "At night in clouds", "Far from airports at high altitude"], "Most occur in daytime visual conditions, close to airports, where traffic is concentrated.", "Aeronautical Information Manual 8-1-6"],
+["o46", 5, "While flying near an airport, you hear a pilot on CTAF report entering the downwind leg toward your area. You should:", ["Stay clear: hold low or land until the traffic passes", "Climb to get a better view", "Keep flying; manned aircraft must avoid you"], "Drones must yield to all manned aircraft and must not interfere with airport traffic patterns.", "14 CFR 107.37; 107.43"],
+["o47", 5, "For batteries that won't be used for a few weeks, best practice is to:", ["Store them at a partial (storage) charge in a cool, dry place", "Store them fully charged in a warm vehicle", "Fully drain them first"], "Most manufacturers recommend a storage charge of roughly half and cool, dry storage.", "Manufacturer battery guidance"],
+["o48", 5, "A preflight crew briefing should cover:", ["Roles, operating conditions, emergency procedures and hazards", "Only the flight time", "Only the camera settings"], "Part 107 requires the RPIC to brief everyone involved on conditions, emergency procedures, contingencies, roles and hazards.", "14 CFR 107.49(a)"]
+];
+const CARDS=[
+["Max groundspeed","87 knots (100 mph)"],["Max altitude","400 ft AGL, or 400 ft above a structure within 400 ft of it"],["Min visibility","3 statute miles from the control station"],["Cloud clearance","500 ft below, 2,000 ft horizontal"],["Max weight","Under 55 lb at takeoff, everything included"],["Accident report","Within 10 days: serious injury, loss of consciousness, or over $500 non-UA property damage"],["Alcohol","8 hours bottle to throttle, BAC under 0.04"],["Recurrent training","Every 24 calendar months, free online"],["Minimum age","16"],["Registration","Renew every 3 years; number on an external surface"],["Night lighting","Anti-collision lights visible 3 statute miles"],["Moving vehicle","Only over sparsely populated areas; never from an aircraft"],["Remote ID options","Standard RID drone, broadcast module, or fly in a FRIA"],["Category 1 over people","0.55 lb or less, everything included"],["Authorization needed","Class B, C, D and Class E surface areas"],["Magenta vignette","Class E floor at 700 ft AGL"],["Class D on chart","Dashed blue line; [32] = ceiling 3,200 ft MSL"],["Class C on chart","Solid magenta; 40/15 = ceiling 4,000, floor 1,500 MSL"],["Stadium TFR","3 nm, 3,000 ft AGL, 1 hour before to 1 hour after"],["MTR with 4 digits","At or below 1,500 ft AGL"],["Obstruction 1249 (318)","1,249 ft MSL top, 318 ft AGL tall"],["Circled C","CTAF"],["METAR wind","From, degrees true, knots"],["Ceiling","Lowest BKN or OVC layer (or VV)"],["Thunderstorm stages","Cumulus (updrafts), mature (rain at surface), dissipating (downdrafts)"],["60° bank","2 G load factor"],["Hazardous attitudes","Anti-authority, impulsivity, invulnerability, macho, resignation"],["IMSAFE","Illness, Medication, Stress, Alcohol, Fatigue, Emotion"],["Dark adaptation","About 30 minutes"],["Right of way","Small UA yields to all aircraft"]
+];
+
+
+const MODS={
+ 1:{name:"Regulations",acs:"UA.I",no:1},
+ 2:{name:"Airspace",acs:"UA.II",no:2},
+ 6:{name:"Sectional charts",acs:"UA.II",no:3},
+ 3:{name:"Weather",acs:"UA.III",no:4},
+ 4:{name:"Loading & performance",acs:"UA.IV",no:5},
+ 5:{name:"Operations",acs:"UA.V",no:6}};
+const ORDER=[1,2,6,3,4,5];
+const LORDER=ORDER.flatMap(m=>LESSONS.filter(l=>l.m===m));
+const MOCK_MIX={1:12,2:8,6:5,3:8,4:5,5:22};
+const GATE={1:80,2:80,6:90,3:80,4:80,5:80};
+const QMAP=Object.fromEntries(QB.map(q=>[q[0],q]));
+const KEY="bds107prep.v1";
+const fresh=()=>({q:{},mocks:[],diag:null,cards:{},lessons:{},lastLesson:null,plan:{},name:""});
+let S=(()=>{try{const v=JSON.parse(localStorage.getItem(KEY));if(v&&v.q){v.lessons=v.lessons||{};v.plan=v.plan||{};v.name=v.name||"";return v}}catch(e){}return fresh()})();
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const record=(id,ok)=>{const s=S.q[id]||(S.q[id]={s:0,c:0,w:0,k:0});s.s++;if(ok){s.c++;s.k++}else{s.w++;s.k=0}};
+const missed=()=>QB.filter(q=>{const s=S.q[q[0]];return s&&s.w>0&&s.k<3});
+function modStats(m){const qs=QB.filter(q=>q[1]==m);let seen=0,att=0,cor=0;qs.forEach(q=>{const s=S.q[q[0]];if(s){seen++;att+=s.s;cor+=s.c}});return{total:qs.length,seen,acc:att?Math.round(cor/att*100):null}}
+const lessonsDone=m=>LESSONS.filter(l=>(m==null||l.m===m)&&S.lessons[l.id]).length;
+const lessonsIn=m=>LESSONS.filter(l=>m==null||l.m===m).length;
+const gateMet=m=>{const s=modStats(m);return s.acc!==null&&s.seen>=Math.ceil(s.total/2)&&s.acc>=GATE[m]};
+const last3=()=>S.mocks.slice(-3);
+const mockGate=()=>last3().length===3&&last3().every(x=>x.score>=85);
+const nextLesson=m=>LORDER.find(l=>(m==null||l.m===m)&&!S.lessons[l.id])||LORDER.find(l=>m==null||l.m===m);
+
+const INSTRUCTOR={name:"Jonathan at BDS",email:"jonathan@buswelldroneservices.com"};
+const PLAN=[
+ {k:"w0",tag:"Before week 1",t:"Get set up",mods:[],session:null,items:[
+  ["w0a","Enter your name on the Dashboard so your progress report is labeled"],
+  ["w0b","Create an IACRA account at iacra.faa.gov to get your FAA Tracking Number (FTN). You need it to book the test"],
+  ["w0c","Take the 30-question diagnostic (Mock exam tab) to see where you're starting"],
+  ["w0d","Open the DroneDeploy Academy Part 107 course and watch the introduction"]]},
+ {k:"w1",tag:"Week 1",t:"Regulations and operations",mods:[1,5],session:"Check in on diagnostic scores, walk through the Part 107 operating limits and the hazardous attitudes, then open questions.",items:[
+  ["w1a","Watch the DroneDeploy Academy videos on regulations and operations"],
+  ["w1b","Read the Regulations and Operations lessons in the Handbook"],
+  ["w1c","Practice until Regulations and Operations are both at 80% or better"],
+  ["w1d","Send your progress before the group session (Dashboard)"]]},
+ {k:"w2",tag:"Week 2",t:"Airspace and sectional charts",mods:[2,6],session:"Read a sectional chart together around your own sites: airspace classes, airport data blocks, and when you need authorization.",items:[
+  ["w2a","Watch the DroneDeploy Academy videos on airspace and charts"],
+  ["w2b","Read the Airspace and Sectional charts lessons in the Handbook"],
+  ["w2c","Practice until Airspace is at 80% and Sectional charts at 90%"],
+  ["w2d","Find your own site on an FAA sectional chart and note the airspace and nearest airports"],
+  ["w2e","Send your progress before the group session"]]},
+ {k:"w3",tag:"Week 3",t:"Weather, loading and performance",mods:[3,4],session:"Decode live METARs and TAFs for nearby airports together, then density altitude and load factor.",items:[
+  ["w3a","Watch the DroneDeploy Academy videos on weather and performance"],
+  ["w3b","Read the Weather and Loading & performance lessons in the Handbook"],
+  ["w3c","Practice until Weather and Loading & performance are at 80% or better"],
+  ["w3d","Decode the METAR for your nearest airport each morning this week (aviationweather.gov)"],
+  ["w3e","Send your progress before the group session"]]},
+ {k:"w4",tag:"Week 4",t:"Review and mock exams",mods:[],session:"Review everyone's mock scores and missed questions, and work through the weakest areas together.",items:[
+  ["w4a","Clear the Missed tab (each question answered right three times)"],
+  ["w4b","Take full 60-question mock exams until you score 85% or better three times in a row"],
+  ["w4c","Read any lessons you haven't marked complete"],
+  ["w4d","When the Dashboard says Ready, send your progress and book the test"]]},
+ {k:"w5",tag:"Test and certificate",t:"Book, pass and apply",mods:[],session:null,items:[
+  ["w5a","Book the Unmanned Aircraft General – Small (UAG) test at a PSI testing center ($175)"],
+  ["w5b","Take the test: 60 questions, 2 hours, 70% to pass. Bring government-issued photo ID"],
+  ["w5c","Apply for your Remote Pilot Certificate in IACRA using the 17-digit exam ID on your test report (results can take up to 48 hours to appear)"],
+  ["w5d","Clear the TSA background check, then print your temporary certificate from IACRA"],
+  ["w5e","Every 24 months: complete the free online recurrent training (ALC-677 on FAASafety.gov)"]]}
+];
+const PLAN_ITEMS=PLAN.flatMap(w=>w.items.map(i=>i[0]));
+const planDone=()=>PLAN_ITEMS.filter(k=>S.plan[k]).length;
+const readyNow=()=>lessonsDone()===lessonsIn()&&!!S.diag&&[1,2,3,4,5].every(gateMet)&&gateMet(6)&&mockGate();
+function progressText(){
+ const L=[`Part 107 progress: ${S.name||"(name not entered)"}`,`Date: ${new Date().toLocaleDateString()}`,"",
+  `Training plan: ${planDone()} of ${PLAN_ITEMS.length} steps checked off`,
+  `Handbook: ${lessonsDone()} of ${lessonsIn()} lessons read`,
+  `Diagnostic: ${S.diag?S.diag+"%":"not taken yet"}`,"","Practice accuracy by area:",
+  ...ORDER.map(m=>{const st=modStats(m);return `- ${MODS[m].name}: ${st.acc===null?"no practice yet":st.acc+"%"} (${st.seen} of ${st.total} questions seen; goal ${GATE[m]}%)`}),"",
+  `Mock exams: ${S.mocks.length?S.mocks.slice(-5).map(x=>x.score+"%").join(", "):"none yet"}`,
+  `Missed questions still to review: ${missed().length}`,
+  `Ready to book the FAA test: ${readyNow()?"Yes":"Not yet"}`];
+ return L.join("\n")}
+let shareMsg="";
+function copyText(t){const done=()=>{shareMsg="Progress copied. Paste it into an email or text to your instructor.";render()};
+ try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(done,()=>fallbackCopy(t,done));return}}catch(e){}
+ fallbackCopy(t,done)}
+function fallbackCopy(t,done){try{const ta=document.createElement("textarea");ta.value=t;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove();done()}catch(e){shareMsg="Copy didn't work here. Select the summary below and copy it by hand.";render()}}
+function shareHTML(){return `<section class="panel"><h2>Share your progress</h2>
+ <p class="muted" style="margin:0 0 10px">Send this before each weekly group session so your instructor can see where you are.</p>
+ <label for="pname" style="font-weight:600;font-size:14px">Your name</label><br><input id="pname" class="field" value="${esc(S.name||"")}" placeholder="First and last name" autocomplete="name">
+ <div class="actions" style="justify-content:flex-start;margin-top:12px"><a class="btn" style="text-decoration:none" href="mailto:${INSTRUCTOR.email}?subject=${encodeURIComponent("Part 107 progress: "+(S.name||""))}&body=${encodeURIComponent(progressText())}" data-act="mailed">Email to ${esc(INSTRUCTOR.name)}</a><button class="btn ghost" data-act="copyprog">Copy summary</button></div>
+ ${shareMsg?`<p class="okmsg">${esc(shareMsg)}</p>`:""}
+ <details style="margin-top:10px"><summary class="muted" style="cursor:pointer;font-size:14px">Preview the summary</summary><pre style="white-space:pre-wrap;font:13px var(--f-mono);background:var(--soft);padding:10px;border-radius:6px">${esc(progressText())}</pre></details>
+</section>`}
+function planView(){const d=planDone(),t=PLAN_ITEMS.length,pct=Math.round(d/t*100);
+ return `<section class="panel"><h2>Training plan</h2>
+ <p style="max-width:68ch;margin:0 0 6px">Four weeks, with one 30-minute group session a week. Between sessions, study on your own with the DroneDeploy Academy videos and this app. Airspace and weather each get a full week because they're where most people get stuck. Check off each step as you go.</p>
+ <div class="pbar" aria-label="${pct}% of plan complete"><i style="width:${pct}%"></i></div><div class="muted" style="font-size:13px">${d} of ${t} steps done</div>
+ ${PLAN.map(w=>{const wd=w.items.filter(i=>S.plan[i[0]]).length;return `<div class="plan-week"><div class="wk-tag">${esc(w.tag)} · ${wd}/${w.items.length}</div><h3>${esc(w.t)}</h3>
+  ${w.session?`<div class="session"><b>Group session · 30 min.</b> ${esc(w.session)}</div>`:""}
+  ${w.items.map(([k,txt])=>`<label class="check ${S.plan[k]?"done":""}"><input type="checkbox" data-plan="${k}" ${S.plan[k]?"checked":""}><span>${esc(txt)}</span></label>`).join("")}
+  ${w.mods.length?`<div class="actions" style="justify-content:flex-start;margin-top:10px">${w.mods.map(m=>`<button class="btn small ghost" data-lesson="${nextLesson(m).id}">${esc(MODS[m].name)} lessons</button>`).join("")}<button class="btn small" data-pmods="${w.mods.join(",")}">Practice ${w.mods.map(m=>esc(MODS[m].name)).join(" + ")}</button></div>`:""}
+  ${w.k==="w4"?`<div class="actions" style="justify-content:flex-start;margin-top:10px"><button class="btn small" data-act="mockgo">Go to mock exam</button><button class="btn small ghost" data-tab="missed">Missed questions</button></div>`:""}
+ </div>`}).join("")}
+ </section>`}
+
+let view="dash",sess=null,timerId=null,confirmSubmit=false,confirmReset=false,card=null,flipped=false,lessonId=null;
+const TABS=[["dash","Dashboard"],["plan","Training plan"],["handbook","Handbook"],["practice","Practice"],["mock","Mock exam"],["cards","Flashcards"],["missed","Missed"]];
+function renderTabs(){const n=missed().length;document.getElementById("tabs").innerHTML=TABS.map(([k,l])=>`<button role="tab" aria-selected="${view===k}" data-tab="${k}">${l}${k==="missed"&&n?`<span class="badge">${n}</span>`:""}</button>`).join("")}
+
+function makeSession(kind,ids,title){return{kind,title,items:ids.map(id=>({id,order:shuffle([0,1,2]),pick:null,flag:false})),i:0,done:false,start:Date.now(),limit:kind==="mock"?7200:null}}
+function startPractice(ids,title){sess=makeSession("practice",ids,title);view="practice";render();window.scrollTo(0,0)}
+function startMod(m){startPractice(shuffle(QB.filter(q=>q[1]==m)).slice(0,10).map(q=>q[0]),MODS[m].name)}
+function startDiag(){const ids=[];ORDER.forEach(m=>shuffle(QB.filter(q=>q[1]==m)).slice(0,5).forEach(q=>ids.push(q[0])));sess=makeSession("diag",shuffle(ids),"Diagnostic");view="mock";render()}
+function startMock(){const ids=[];ORDER.forEach(m=>shuffle(QB.filter(q=>q[1]==m)).slice(0,MOCK_MIX[m]).forEach(q=>ids.push(q[0])));sess=makeSession("mock",shuffle(ids),"Full mock exam");view="mock";confirmSubmit=false;render();tick()}
+function openLesson(id){lessonId=id;S.lastLesson=id;save();view="handbook";render();window.scrollTo(0,0)}
+
+function render(){renderTabs();const app=document.getElementById("app");
+ if(view==="dash")app.innerHTML=dash();
+ else if(view==="plan")app.innerHTML=planView();
+ else if(view==="handbook")app.innerHTML=handbook();
+ else if(view==="practice")app.innerHTML=sess&&sess.kind==="practice"?(sess.done?practiceDone():question()):practiceHome();
+ else if(view==="mock")app.innerHTML=sess&&sess.kind!=="practice"?(sess.done?results():exam()):mockHome();
+ else if(view==="cards")app.innerHTML=cards();
+ else if(view==="missed")app.innerHTML=missedView();}
+
+function dash(){
+ const tot=lessonsIn(),done=lessonsDone();
+ const gates=[[done===tot,"Handbook complete",`${done} of ${tot} lessons read`],
+  [!!S.diag,"Diagnostic complete",S.diag?`Scored ${S.diag}%`:"30 questions, 5 per module"],
+  [[1,2,3,4,5].every(gateMet),"Every module at 80%","Answer at least half of each module's questions"],
+  [gateMet(6),"Sectional charts at 90%","Chart reading is drilled harder since Oct 26, 2026"],
+  [mockGate(),"Three mocks in a row at 85%",S.mocks.length?`Last three: ${last3().map(x=>x.score+"%").join(", ")}`:"No mocks yet"]];
+ const ready=gates.every(g=>g[0]);const nl=nextLesson();
+ return `<div class="grid2">
+ <div class="stack"><section class="panel"><h2>Test readiness</h2>
+  <div class="ready ${ready?"yes":"no"}">${ready?"Ready to book the FAA UAG test.":"Not ready to book yet. Clear all five gates first."}</div>
+  ${gates.map(g=>`<div class="gate"><span class="dot ${g[0]?"on":""}">${g[0]?"✓":""}</span><div><div style="font-weight:600">${g[1]}</div><div class="muted" style="font-size:13px">${esc(g[2])}</div></div></div>`).join("")}
+ </section>
+ <section class="panel"><h3>${done?"Continue training":"Start training"}</h3><p class="muted" style="margin:0 0 12px">${done===tot?"All lessons read. Keep practicing until the gates are green.":`Next lesson: ${nl.id} ${esc(nl.t)} (${nl.min} min)`}</p>
+  <div class="actions" style="justify-content:flex-start;margin-top:0">${done===tot?"":`<button class="btn" data-lesson="${nl.id}">Open lesson ${nl.id}</button>`}${S.diag?`<button class="btn ghost" data-act="mockgo">Take a mock exam</button>`:`<button class="btn ghost" data-act="diag">Take the diagnostic</button>`}</div></section>
+ ${shareHTML()}
+ </div>
+ <div class="stack"><section class="panel"><h2>Module progress</h2>
+  ${ORDER.map(m=>{const s=modStats(m);return `<div class="mod"><div><span class="name">${MODS[m].no}. ${MODS[m].name}</span><span class="acs">${MODS[m].acs}</span></div><div style="display:flex;gap:6px"><button class="btn small ghost" data-lesson="${nextLesson(m).id}">Read</button><button class="btn small ghost" data-mod="${m}">Practice</button></div>
+   <div class="bar" aria-label="${s.acc??0}% correct"><i style="width:${s.acc??0}%"></i><b style="left:${GATE[m]}%" title="Gate ${GATE[m]}%"></b></div>
+   <div class="stat">Lessons ${lessonsDone(m)}/${lessonsIn(m)} · ${s.acc===null?"no practice yet":`${s.acc}% correct`} · ${s.seen} of ${s.total} questions seen · gate ${GATE[m]}%</div></div>`}).join("")}
+ </section>
+ <section class="panel"><h2>Mock history</h2>${S.mocks.length?`<table class="hist"><thead><tr><th>Date</th><th>Score</th><th>Result</th></tr></thead><tbody>${S.mocks.slice().reverse().slice(0,8).map(x=>`<tr><td>${new Date(x.date).toLocaleDateString()}</td><td class="mono">${x.score}%</td><td>${x.score>=85?'<span class="pill gate85">BDS gate</span>':x.score>=70?'<span class="pill pass">Pass</span>':'<span class="pill fail">Below 70</span>'}</td></tr>`).join("")}</tbody></table>`:`<p class="muted" style="margin:0">Mock scores will show here. The FAA pass line is 70%; the BDS gate is 85% three times in a row.</p>`}
+ <div class="actions" style="justify-content:flex-end">${confirmReset?`<span class="muted">Erase all progress on this device?</span><button class="btn small danger" data-act="reset2">Erase</button><button class="btn small ghost" data-act="reset0">Keep</button>`:`<button class="btn small danger" data-act="reset">Reset progress</button>`}</div></section></div></div>`}
+
+function toc(cur){const open=window.innerWidth>760?"open":"";return `<details class="toc" ${open}><summary>Lessons · ${lessonsDone()} of ${lessonsIn()} read</summary>${ORDER.map(m=>`<div class="mh">${MODS[m].no}. ${MODS[m].name}</div>${LESSONS.filter(l=>l.m===m).map(l=>`<button data-lesson="${l.id}" class="${cur&&cur.id===l.id?"cur":""}"><span class="ck">${S.lessons[l.id]?"✓":""}</span><span class="no">${l.id}</span><span>${esc(l.t)}</span></button>`).join("")}`).join("")}</details>`}
+function handbook(){
+ if(!lessonId){return `<div class="hb">${toc(null)}<div><h2>BDS Pilot Handbook</h2><p style="max-width:65ch;margin-top:0">${lessonsIn()} lessons across six modules, mapped to the FAA Remote Pilot ACS. Read a module, then practice it. Each lesson links to the FAA source it draws from.</p>
+  <div class="modcards">${ORDER.map(m=>{const nl=nextLesson(m);return `<button class="modcard" data-lesson="${nl.id}"><span class="n">Module ${MODS[m].no} · ${MODS[m].acs}</span><span style="font-weight:600;font-size:16px">${MODS[m].name}</span><span class="muted" style="font-size:13px">${lessonsIn(m)} lessons · ${LESSONS.filter(l=>l.m===m).reduce((a,l)=>a+l.min,0)} min · ${lessonsDone(m)} read</span></button>`}).join("")}</div></div></div>`}
+ const L=LESSONS.find(l=>l.id===lessonId),i=LORDER.indexOf(L),mods=LESSONS.filter(l=>l.m===L.m),pos=mods.indexOf(L),last=pos===mods.length-1,done=!!S.lessons[L.id],nx=LORDER[i+1],pv=LORDER[i-1];
+ return `<div class="hb">${toc(L)}<article class="lesson">
+  <div class="crumb">Module ${MODS[L.m].no} · ${MODS[L.m].name} · Lesson ${pos+1} of ${mods.length} · ${L.min} min</div>
+  <h2>${L.id} ${esc(L.t)}</h2>
+  <div class="obj"><b>Objective.</b> ${esc(L.obj)}</div>
+  ${L.body}
+  <div class="refs"><b>FAA references</b><ul>${L.refs.map(r=>`<li><a href="${REF[r][1]}" target="_blank" rel="noopener">${esc(REF[r][0])}</a></li>`).join("")}</ul></div>
+  <div class="actions">${pv?`<button class="btn ghost" data-lesson="${pv.id}">Previous</button>`:"<span></span>"}
+   <div style="display:flex;gap:8px;flex-wrap:wrap">${last?`<button class="btn ghost" data-mod="${L.m}">Quiz me on ${MODS[L.m].name}</button>`:""}<button class="btn" data-act="complete">${done?(nx?"Next lesson":"Back to handbook"):(nx?"Mark read and continue":"Mark read")}</button></div></div>
+ </article></div>`}
+
+function practiceHome(){
+ return `<h2>Topic practice</h2><p class="muted" style="margin-top:0">Pick a module for 10 questions with instant feedback and the rule behind each answer.</p>
+ <div class="modcards">${ORDER.map(m=>{const s=modStats(m);return `<button class="modcard" data-mod="${m}"><span class="n">Module ${MODS[m].no} · ${MODS[m].acs}</span><span style="font-weight:600;font-size:16px">${MODS[m].name}</span><span class="muted" style="font-size:13px">${s.total} questions · ${s.acc===null?"not started":s.acc+"% correct"}</span></button>`}).join("")}
+ <button class="modcard" data-act="mixed"><span class="n">All areas</span><span style="font-weight:600;font-size:16px">Mixed set</span><span class="muted" style="font-size:13px">20 questions across every module</span></button></div>`}
+
+function choicesHTML(it,mode){const q=QMAP[it.id];return `<div class="choices">${it.order.map((o,n)=>{let c="";if(mode==="reveal"){if(o===0)c="right";else if(it.pick===n)c="wrong"}else if(it.pick===n)c="sel";return `<button class="choice ${c}" data-pick="${n}" ${mode==="reveal"?"disabled":""}><span class="l">${"ABC"[n]}</span><span>${esc(q[3][o])}</span></button>`}).join("")}</div>`}
+function explainHTML(q){return `<div class="explain">${esc(q[4])}<span class="ref">${esc(q[5])}</span><button class="linkbtn" data-lesson="${nextLesson(q[1]).id}" data-lessonmod="${q[1]}">Review ${MODS[q[1]].name} in the handbook</button></div>`}
+
+function question(){const it=sess.items[sess.i],q=QMAP[it.id],rev=it.pick!==null;
+ return `<div class="qhead"><div><strong>${esc(sess.title)}</strong> <span class="muted mono">· ${sess.i+1} of ${sess.items.length}</span></div><button class="btn small ghost" data-act="quit">End session</button></div>
+ <div class="progress"><i style="width:${(sess.i+(rev?1:0))/sess.items.length*100}%"></i></div>
+ <section class="panel"><span class="tag">${MODS[q[1]].acs} · ${MODS[q[1]].name}</span><p class="stem">${esc(q[2])}</p>${choicesHTML(it,rev?"reveal":"")}
+ ${rev?`<div style="margin-top:14px;font-weight:600;color:var(${it.order[it.pick]===0?"--good":"--bad"})">${it.order[it.pick]===0?"Correct.":"Not quite."}</div>${explainHTML(q)}`:""}
+ <div class="actions"><span class="muted" style="font-size:13px">Keys: <kbd>A</kbd> <kbd>B</kbd> <kbd>C</kbd> to answer, <kbd>Enter</kbd> for next</span>${rev?`<button class="btn" data-act="next">${sess.i+1<sess.items.length?"Next question":"See results"}</button>`:""}</div></section>`}
+
+function practiceDone(){const ans=sess.items.filter(i=>i.pick!==null),ok=ans.filter(i=>i.order[i.pick]===0).length,pct=ans.length?Math.round(ok/ans.length*100):0;
+ return `<section class="panel"><h2>${esc(sess.title)} complete</h2><p class="score mono">${pct}%</p><p>${ok} of ${ans.length} correct. ${ans.length-ok?"Missed questions stay in your Missed queue until you get each one right three times in a row.":"Clean sweep."}</p>
+ <div class="actions" style="justify-content:flex-start"><button class="btn" data-act="again">Practice again</button><button class="btn ghost" data-act="home">Back to dashboard</button></div></section>`}
+
+function mockHome(){return `<section class="panel"><h2>Full mock exam</h2><p style="max-width:65ch">Same format as the FAA UAG test: 60 questions, 3 choices each, a 2-hour clock, and no feedback until you submit. Questions are drawn in proportion to the FAA's knowledge areas.</p>
+ <table class="hist" style="max-width:420px"><thead><tr><th>Area</th><th>Questions</th></tr></thead><tbody>${ORDER.map(m=>`<tr><td>${MODS[m].name}</td><td class="mono">${MOCK_MIX[m]}</td></tr>`).join("")}</tbody></table>
+ <div class="actions" style="justify-content:flex-start"><button class="btn" data-act="mockstart">Start the clock</button>${S.diag?"":`<button class="btn ghost" data-act="diag">Take the diagnostic first</button>`}</div></section>`}
+
+function remaining(){return Math.max(0,sess.limit-Math.floor((Date.now()-sess.start)/1000))}
+const fmt=s=>`${Math.floor(s/3600)}:${String(Math.floor(s%3600/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`;
+function exam(){const it=sess.items[sess.i],q=QMAP[it.id],n=sess.items.filter(x=>x.pick!==null).length,un=sess.items.length-n;
+ return `<div class="qhead"><div><strong>${esc(sess.title)}</strong> <span class="muted mono">· ${sess.i+1} of ${sess.items.length} · ${n} answered</span></div>${sess.limit?`<span class="timer ${remaining()<600?"low":""}" id="timer">${fmt(remaining())}</span>`:""}</div>
+ <section class="panel"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><span class="tag">Question ${sess.i+1}</span><button class="btn small ghost" data-act="flag">${it.flag?"Unflag":"Flag for review"}</button></div>
+ <p class="stem">${esc(q[2])}</p>${choicesHTML(it,"")}
+ <div class="actions"><button class="btn ghost" data-act="prev" ${sess.i===0?"disabled":""}>Previous</button>${sess.i+1<sess.items.length?`<button class="btn" data-act="enext">Next</button>`:""}</div>
+ <div class="qgrid">${sess.items.map((x,k)=>`<button data-jump="${k}" class="${x.pick!==null?"ans":""} ${k===sess.i?"cur":""} ${x.flag?"flag":""}" aria-label="Question ${k+1}">${k+1}</button>`).join("")}</div>
+ <div class="actions" style="justify-content:flex-end">${confirmSubmit?`<span class="muted">${un?`${un} unanswered. `:""}Submit for grading?</span><button class="btn" data-act="submit2">Submit</button><button class="btn ghost" data-act="submit0">Keep working</button>`:`<button class="btn" data-act="submit">Submit exam</button>`}</div></section>`}
+
+function tick(){clearInterval(timerId);timerId=setInterval(()=>{if(!sess||sess.done||!sess.limit){clearInterval(timerId);return}const r=remaining(),el=document.getElementById("timer");if(el){el.textContent=fmt(r);el.classList.toggle("low",r<600)}if(r<=0)grade()},1000)}
+function grade(){clearInterval(timerId);sess.done=true;const by={};sess.items.forEach(it=>{const q=QMAP[it.id],ok=it.pick!==null&&it.order[it.pick]===0;record(it.id,ok);(by[q[1]]=by[q[1]]||[0,0]);by[q[1]][1]++;if(ok)by[q[1]][0]++});
+ const ok=sess.items.filter(it=>it.pick!==null&&it.order[it.pick]===0).length;sess.score=Math.round(ok/sess.items.length*100);sess.ok=ok;sess.by=by;
+ if(sess.kind==="mock")S.mocks.push({date:Date.now(),score:sess.score});else S.diag=sess.score;save();confirmSubmit=false;render();window.scrollTo(0,0)}
+
+function results(){const wrong=sess.items.filter(it=>!(it.pick!==null&&it.order[it.pick]===0));const s=sess.score;
+ return `<section class="panel"><h2>${esc(sess.title)} results</h2><div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap"><span class="score mono">${s}%</span><span>${sess.ok} of ${sess.items.length} correct · ${s>=85?'<span class="pill gate85">Meets BDS 85% gate</span>':s>=70?'<span class="pill pass">Above the FAA 70% line</span>':'<span class="pill fail">Below the FAA 70% line</span>'}</span></div>
+ <div class="scale"><i style="width:${s}%"></i><b style="left:70%"></b><span style="left:70%">FAA 70%</span><b style="left:85%;background:var(--accent-strong)"></b><span style="left:85%;color:var(--accent-strong)">BDS 85%</span></div>
+ ${ORDER.filter(m=>sess.by[m]).map(m=>{const[a,b]=sess.by[m],p=Math.round(a/b*100);return `<div class="mod"><span class="name">${MODS[m].name}</span><span class="mono">${a}/${b}</span><div class="bar"><i style="width:${p}%"></i></div></div>`}).join("")}
+ <div class="actions" style="justify-content:flex-start"><button class="btn" data-act="mockgo">${sess.kind==="mock"?"Take another mock":"Take a full mock"}</button>${wrong.length?`<button class="btn ghost" data-act="drillwrong">Drill the ${wrong.length} missed</button>`:""}<button class="btn ghost" data-act="home">Dashboard</button></div></section>
+ ${wrong.length?`<section class="panel" style="margin-top:18px"><h2>Review missed questions</h2>${wrong.map(it=>{const q=QMAP[it.id];return `<div class="review"><span class="tag">${MODS[q[1]].name}</span><p style="font-weight:500;margin:8px 0 6px">${esc(q[2])}</p><p style="margin:0" class="muted">Your answer: ${it.pick===null?"none":esc(q[3][it.order[it.pick]])}</p><p style="margin:4px 0 0;color:var(--good);font-weight:600">Correct: ${esc(q[3][0])}</p>${explainHTML(q)}</div>`}).join("")}</section>`:""}`}
+
+function pickCard(){const box=i=>S.cards[i]||1;const idx=CARDS.map((_,i)=>i).filter(i=>i!==card);const min=Math.min(...idx.map(box));const pool=idx.filter(i=>box(i)<=min+1);card=pool[Math.floor(Math.random()*pool.length)];flipped=false}
+function cards(){if(card===null)pickCard();const c=CARDS[card],counts=[1,2,3,4,5].map(b=>CARDS.filter((_,i)=>(S.cards[i]||1)===b).length);
+ return `<h2>Flashcards</h2><p class="muted" style="margin-top:0">The numbers and symbols to know cold. Cards you miss come back sooner; cards you know move up a box.</p>
+ <section class="panel flash" data-act="flip" role="button" tabindex="0" aria-label="Flip card"><span class="tag">Box ${S.cards[card]||1} of 5</span><div class="front">${esc(c[0])}</div>${flipped?`<div class="back">${esc(c[1])}</div>`:`<div class="muted" style="font-size:13px">Tap or press Space to flip</div>`}</section>
+ <div class="actions"><button class="btn ghost" data-act="again1" ${flipped?"":"disabled"}>Again</button><button class="btn" data-act="gotit" ${flipped?"":"disabled"}>Got it</button></div>
+ <div class="boxes">${counts.map((n,i)=>`<div><b>${n}</b>Box ${i+1}</div>`).join("")}</div>`}
+
+function missedView(){const m=missed();
+ return `<h2>Missed questions</h2><p class="muted" style="margin-top:0">Every question you miss stays here until you answer it right three times in a row.</p>
+ ${m.length?`<div class="actions" style="justify-content:flex-start;margin:0 0 14px"><button class="btn" data-act="drillmissed">Review all ${m.length}</button></div><section class="panel">${m.map(q=>{const s=S.q[q[0]];return `<div class="review" style="padding:10px 0"><span class="tag">${MODS[q[1]].name}</span> <span class="muted mono" style="font-size:12px">missed ${s.w}× · streak ${s.k}/3</span><p style="margin:6px 0 0">${esc(q[2])}</p></div>`}).join("")}</section>`:`<section class="panel"><p style="margin:0">Nothing to review. Missed questions from practice and mock exams collect here.</p></section>`}`}
+
+function answer(n){if(!sess||sess.done)return;const it=sess.items[sess.i];
+ if(sess.kind==="practice"){if(it.pick!==null)return;it.pick=n;record(it.id,it.order[n]===0);save()}else{it.pick=n}render()}
+function nextQ(){if(sess.i+1<sess.items.length){sess.i++;render()}else{sess.done=true;render()}window.scrollTo(0,0)}
+
+document.addEventListener("click",e=>{const t=e.target.closest("[data-tab],[data-act],[data-mod],[data-pick],[data-jump],[data-lesson],[data-pmods]");if(!t)return;
+ if(t.dataset.tab){view=t.dataset.tab;if(view==="handbook"&&!lessonId&&S.lastLesson&&false)lessonId=S.lastLesson;if(view==="handbook"&&t.dataset.tab)lessonId=null;confirmReset=false;render();return}
+ if(t.dataset.lesson){if(sess&&!sess.done&&sess.kind==="mock"&&view==="mock")return;openLesson(t.dataset.lesson);return}
+ if(t.dataset.mod){startMod(+t.dataset.mod);return}
+ if(t.dataset.pmods){const ms=t.dataset.pmods.split(",").map(Number);startPractice(shuffle(QB.filter(q=>ms.includes(q[1]))).slice(0,20).map(q=>q[0]),ms.map(m=>MODS[m].name).join(" + "));return}
+ if(t.dataset.pick){answer(+t.dataset.pick);return}
+ if(t.dataset.jump){sess.i=+t.dataset.jump;render();return}
+ const a=t.dataset.act;
+ if(a==="next")nextQ();
+ else if(a==="enext"){sess.i++;render()}
+ else if(a==="prev"){sess.i--;render()}
+ else if(a==="flag"){const it=sess.items[sess.i];it.flag=!it.flag;render()}
+ else if(a==="quit"){sess.done=true;render()}
+ else if(a==="again"){const m=Object.keys(MODS).find(k=>MODS[k].name===sess.title);if(m)startMod(+m);else if(sess.title==="Mixed set")startPractice(shuffle(QB).slice(0,20).map(q=>q[0]),"Mixed set");else{sess=null;view="practice";render()}}
+ else if(a==="mixed")startPractice(shuffle(QB).slice(0,20).map(q=>q[0]),"Mixed set");
+ else if(a==="home"){sess=null;view="dash";render()}
+ else if(a==="diag")startDiag();
+ else if(a==="mockgo"){sess=null;view="mock";render()}
+ else if(a==="mockstart")startMock();
+ else if(a==="submit"){confirmSubmit=true;render()}
+ else if(a==="submit0"){confirmSubmit=false;render()}
+ else if(a==="submit2")grade();
+ else if(a==="drillwrong"){const ids=sess.items.filter(it=>!(it.pick!==null&&it.order[it.pick]===0)).map(it=>it.id);startPractice(ids,"Missed from "+sess.title.toLowerCase())}
+ else if(a==="drillmissed")startPractice(shuffle(missed()).map(q=>q[0]),"Missed review");
+ else if(a==="complete"){S.lessons[lessonId]=true;save();const i=LORDER.findIndex(l=>l.id===lessonId);const nx=LORDER[i+1];if(nx)openLesson(nx.id);else{lessonId=null;render();window.scrollTo(0,0)}}
+ else if(a==="copyprog")copyText(progressText());
+ else if(a==="mailed"){shareMsg="Your email app should open with the summary. If it doesn't, use Copy summary.";setTimeout(render,50)}
+ else if(a==="flip"){flipped=!flipped;render()}
+ else if(a==="gotit"){S.cards[card]=Math.min(5,(S.cards[card]||1)+1);save();pickCard();render()}
+ else if(a==="again1"){S.cards[card]=1;save();pickCard();render()}
+ else if(a==="reset"){confirmReset=true;render()}
+ else if(a==="reset0"){confirmReset=false;render()}
+ else if(a==="reset2"){S=fresh();save();confirmReset=false;sess=null;card=null;lessonId=null;render()}
+});
+document.addEventListener("change",e=>{const c=e.target.closest("input[data-plan]");if(!c)return;S.plan[c.dataset.plan]=c.checked;save();render()});
+document.addEventListener("input",e=>{if(e.target.id==="pname"){S.name=e.target.value.slice(0,80);save();const a=document.querySelector('a[data-act="mailed"]');if(a)a.href=`mailto:${INSTRUCTOR.email}?subject=${encodeURIComponent("Part 107 progress: "+S.name)}&body=${encodeURIComponent(progressText())}`}});
+document.addEventListener("keydown",e=>{if(e.target.closest("input,textarea,summary"))return;const k=e.key.toLowerCase();
+ if(view==="cards"&&(k===" "||k==="enter")&&!flipped){e.preventDefault();flipped=true;render();return}
+ if(!sess||sess.done)return;const onQ=(view==="practice"&&sess.kind==="practice")||(view==="mock"&&sess.kind!=="practice");if(!onQ)return;
+ const idx="abc".indexOf(k)>=0?"abc".indexOf(k):"123".indexOf(k);if(idx>=0&&k.length===1){answer(idx);return}
+ if(k==="enter"){if(sess.kind==="practice"&&sess.items[sess.i].pick!==null)nextQ();else if(sess.kind!=="practice"&&sess.i+1<sess.items.length){sess.i++;render()}}
+ if(sess.kind!=="practice"){if(k==="arrowright"&&sess.i+1<sess.items.length){sess.i++;render()}if(k==="arrowleft"&&sess.i>0){sess.i--;render()}}
+});
+render();
+</script>
+
+
+</html>
